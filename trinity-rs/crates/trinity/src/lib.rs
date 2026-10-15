@@ -30,7 +30,7 @@ pub mod prelude {
         EveSOFDataFaction, EveSOFDataGeneric, EveSOFDataGenericShader, EveSOFDataHull,
         EveSOFDataHullArea, EveSOFDataHullLocatorSet, EveSOFDataHullSoundEmitter, EveSOFDataRace,
         EveSOFDataTransform, EveShip2, EveSpaceObject2, EveSpaceObjectChild, Tr2PPExecutionSlot,
-        Tr2PPGenericEffect, Tr2PPParameter, TrinityHierarchyWorldExt, TrinityPlugin, TrinityPlugins,
-        TrinityRuntime, TrinitySet, TrinityVerificationPlugins,
+        Tr2PPGenericEffect, Tr2PPParameter, TrinityHierarchyWorldExt, TrinityPlugin,
+        TrinityPlugins, TrinityRuntime, TrinitySet, TrinityVerificationPlugins,
     };
 }

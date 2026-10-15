@@ -33,7 +33,12 @@ pub enum ALResultCategory {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize, TrinityClass)]
-#[trinity(module = "trinity", name = "ALResult", legacy_header = "trinityal/ALResult.h", kind = "value")]
+#[trinity(
+    module = "trinity",
+    name = "ALResult",
+    legacy_header = "trinityal/ALResult.h",
+    kind = "value"
+)]
 pub struct ALResult {
     #[trinity(read, persist)]
     result: HResult,

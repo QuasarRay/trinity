@@ -60,13 +60,22 @@ pub struct EveSOFDataGeneric {
 }
 
 #[derive(Clone, Debug, Default, Reflect, PartialEq)]
-pub struct EveSOFDataFaction { pub name: String }
+pub struct EveSOFDataFaction {
+    pub name: String,
+}
 #[derive(Clone, Debug, Default, Reflect, PartialEq)]
-pub struct EveSOFDataRace { pub name: String }
+pub struct EveSOFDataRace {
+    pub name: String,
+}
 
 #[derive(Resource, Reflect, Clone, Debug, Default, TrinityClass)]
 #[reflect(Resource)]
-#[trinity(module = "trinity", name = "EveSOFData", legacy_header = "trinity/EveSOFData.h", kind = "resource")]
+#[trinity(
+    module = "trinity",
+    name = "EveSOFData",
+    legacy_header = "trinity/EveSOFData.h",
+    kind = "resource"
+)]
 pub struct EveSOFData {
     #[trinity(read, write, persist)]
     pub generic: EveSOFDataGeneric,
@@ -95,7 +104,12 @@ pub struct EveChildPartData {
 
 #[derive(Component, Reflect, Clone, Debug, Default, TrinityClass)]
 #[reflect(Component)]
-#[trinity(module = "trinity", name = "EveSpaceObject2", legacy_header = "trinity/EveSpaceObject2.h", kind = "component")]
+#[trinity(
+    module = "trinity",
+    name = "EveSpaceObject2",
+    legacy_header = "trinity/EveSpaceObject2.h",
+    kind = "component"
+)]
 pub struct EveSpaceObject2 {
     #[trinity(read, persist)]
     pub parts: Vec<EveChildPartData>,
@@ -147,7 +161,12 @@ impl EveSpaceObject2 {
 
 #[derive(Resource, Reflect, Clone, Debug, Default, TrinityClass)]
 #[reflect(Resource)]
-#[trinity(module = "trinity", name = "EveSOF", legacy_header = "trinity/EveSOF.h", kind = "resource")]
+#[trinity(
+    module = "trinity",
+    name = "EveSOF",
+    legacy_header = "trinity/EveSOF.h",
+    kind = "resource"
+)]
 pub struct EveSOF {
     #[trinity(read, write, persist)]
     pub data: EveSOFData,
@@ -168,6 +187,8 @@ impl EveSOF {
 
     pub fn add_hull(&self, world: &mut World, entity: Entity, hull_name: &str) -> Option<u32> {
         let hull = self.data.hull_named(hull_name)?;
-        world.get_mut::<EveSpaceObject2>(entity).map(|mut object| object.add_hull(hull))
+        world
+            .get_mut::<EveSpaceObject2>(entity)
+            .map(|mut object| object.add_hull(hull))
     }
 }

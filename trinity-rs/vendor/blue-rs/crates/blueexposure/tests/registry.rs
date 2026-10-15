@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 use blueexposure::prelude::*;
 
-#[blue_pyclass(module = "BlueExposureTest", name = "TestAttributes", kind = "component")]
+#[blue_pyclass(
+    module = "BlueExposureTest",
+    name = "TestAttributes",
+    kind = "component"
+)]
 #[derive(Clone, Debug, Default)]
 struct TestAttributes {
     #[blue(read, write, persist)]
@@ -56,7 +60,11 @@ fn add_one(value: i32) -> i32 {
     value + 1
 }
 
-#[blue_enum(module = "BlueExposureTest", name = "Mode", doc = "Example exposure enum.")]
+#[blue_enum(
+    module = "BlueExposureTest",
+    name = "Mode",
+    doc = "Example exposure enum."
+)]
 enum Mode {
     Off = 0,
     On = 1,

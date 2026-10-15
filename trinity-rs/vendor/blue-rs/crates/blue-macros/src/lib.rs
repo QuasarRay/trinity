@@ -1,8 +1,9 @@
 use proc_macro::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use syn::{
-    parse::Parser, parse_macro_input, parse_quote, spanned::Spanned, Attribute, Data, DeriveInput, Fields, ImplItem,
-    FnArg, ItemEnum, ItemFn, ItemImpl, ItemStruct, LitStr, Pat, ReturnType, Signature, Type,
+    Attribute, Data, DeriveInput, Fields, FnArg, ImplItem, ItemEnum, ItemFn, ItemImpl, ItemStruct,
+    LitStr, Pat, ReturnType, Signature, Type, parse::Parser, parse_macro_input, parse_quote,
+    spanned::Spanned,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -18,7 +19,9 @@ impl BlueKind {
             "resource" => Ok(Self::Resource),
             other => Err(syn::Error::new(
                 proc_macro2::Span::call_site(),
-                format!("unsupported Blue class kind `{other}`; expected `component` or `resource`"),
+                format!(
+                    "unsupported Blue class kind `{other}`; expected `component` or `resource`"
+                ),
             )),
         }
     }
@@ -74,7 +77,6 @@ fn parse_class_args(tokens: proc_macro2::TokenStream) -> syn::Result<ClassArgs> 
     Ok(args)
 }
 
-
 fn descriptor_ident(ident: &syn::Ident, suffix: &str) -> syn::Ident {
     let base = ident.to_string().to_ascii_uppercase();
     format_ident!("{base}_{suffix}")
@@ -95,7 +97,11 @@ fn is_option_type(ty: &Type) -> bool {
 fn has_explicit_pyo3_signature(attrs: &[Attribute]) -> bool {
     attrs.iter().any(|attr| {
         attr.path().is_ident("pyo3")
-            && attr.meta.to_token_stream().to_string().contains("signature")
+            && attr
+                .meta
+                .to_token_stream()
+                .to_string()
+                .contains("signature")
     })
 }
 
@@ -178,7 +184,11 @@ fn field_flags(attrs: &[Attribute]) -> syn::Result<FieldFlags> {
 
 fn derive_args(input: &DeriveInput) -> syn::Result<ClassArgs> {
     let mut args = ClassArgs::default();
-    for attr in input.attrs.iter().filter(|attr| attr.path().is_ident("blue")) {
+    for attr in input
+        .attrs
+        .iter()
+        .filter(|attr| attr.path().is_ident("blue"))
+    {
         attr.parse_nested_meta(|meta| {
             if meta.path.is_ident("module") {
                 args.module = meta.value()?.parse::<LitStr>()?.value();
@@ -314,7 +324,9 @@ pub fn blue_pyclass(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     for field in item.fields.iter_mut() {
         match field_flags(&field.attrs) {
-            Ok(flags) if flags.read && flags.write => field.attrs.push(parse_quote!(#[pyo3(get, set)])),
+            Ok(flags) if flags.read && flags.write => {
+                field.attrs.push(parse_quote!(#[pyo3(get, set)]))
+            }
             Ok(flags) if flags.read => field.attrs.push(parse_quote!(#[pyo3(get)])),
             Ok(flags) if flags.write => field.attrs.push(parse_quote!(#[pyo3(set)])),
             Ok(_) => {}
@@ -346,7 +358,6 @@ pub fn blue_pyclass(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
     .into()
 }
-
 
 #[proc_macro_attribute]
 pub fn blue_function(attr: TokenStream, item: TokenStream) -> TokenStream {

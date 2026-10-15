@@ -2,7 +2,7 @@ use bevy::{asset::Asset, prelude::*};
 use serde::{Deserialize, Serialize};
 use trinity_macros::TrinityClass;
 
-use crate::{ALResult, PixelFormat, Tr2CpuUsage, Tr2GpuUsage, E_INVALIDARG, E_INVALIDCALL, S_OK};
+use crate::{ALResult, E_INVALIDARG, E_INVALIDCALL, PixelFormat, S_OK, Tr2CpuUsage, Tr2GpuUsage};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize)]
 pub struct Tr2BufferDescriptionAL {
@@ -45,7 +45,12 @@ pub struct Tr2BufferAsset {
 
 #[derive(Component, Reflect, Clone, Debug, Default, TrinityClass)]
 #[reflect(Component)]
-#[trinity(module = "trinity", name = "Tr2BufferAL", legacy_header = "trinityal/include/Tr2BufferAL.h", kind = "component")]
+#[trinity(
+    module = "trinity",
+    name = "Tr2BufferAL",
+    legacy_header = "trinityal/include/Tr2BufferAL.h",
+    kind = "component"
+)]
 pub struct Tr2BufferAL {
     #[trinity(skip)]
     handle: Option<Handle<Tr2BufferAsset>>,
@@ -86,7 +91,10 @@ impl Tr2BufferAL {
     }
 
     #[must_use]
-    pub fn get_desc<'a>(&self, assets: &'a Assets<Tr2BufferAsset>) -> Option<&'a Tr2BufferDescriptionAL> {
+    pub fn get_desc<'a>(
+        &self,
+        assets: &'a Assets<Tr2BufferAsset>,
+    ) -> Option<&'a Tr2BufferDescriptionAL> {
         self.handle
             .as_ref()
             .and_then(|handle| assets.get(handle))
@@ -116,7 +124,11 @@ impl Tr2BufferAL {
         offset: u32,
         data: &[u8],
     ) -> ALResult {
-        let Some(asset) = self.handle.as_ref().and_then(|handle| assets.get_mut(handle)) else {
+        let Some(asset) = self
+            .handle
+            .as_ref()
+            .and_then(|handle| assets.get_mut(handle))
+        else {
             return ALResult::new(E_INVALIDCALL);
         };
         if !asset.desc.cpu_usage.can_write() {
@@ -133,8 +145,16 @@ impl Tr2BufferAL {
         ALResult::new(S_OK)
     }
 
-    pub fn set_name(&mut self, assets: &mut Assets<Tr2BufferAsset>, name: impl Into<String>) -> ALResult {
-        let Some(asset) = self.handle.as_ref().and_then(|handle| assets.get_mut(handle)) else {
+    pub fn set_name(
+        &mut self,
+        assets: &mut Assets<Tr2BufferAsset>,
+        name: impl Into<String>,
+    ) -> ALResult {
+        let Some(asset) = self
+            .handle
+            .as_ref()
+            .and_then(|handle| assets.get_mut(handle))
+        else {
             return ALResult::new(E_INVALIDCALL);
         };
         asset.name = name.into();

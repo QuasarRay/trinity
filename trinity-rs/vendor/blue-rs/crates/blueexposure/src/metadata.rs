@@ -84,7 +84,6 @@ impl BlueFunctionInfo {
     }
 }
 
-
 #[derive(Clone, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize)]
 pub struct BlueEnumInfo {
     pub module: String,

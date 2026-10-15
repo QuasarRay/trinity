@@ -10,7 +10,9 @@ pub struct TrinityRuntime {
 }
 
 impl Default for TrinityRuntime {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TrinityRuntime {
@@ -42,6 +44,10 @@ impl TrinityRuntime {
     }
 
     #[must_use]
-    pub fn app(&self) -> &App { &self.app }
-    pub fn app_mut(&mut self) -> &mut App { &mut self.app }
+    pub fn app(&self) -> &App {
+        &self.app
+    }
+    pub fn app_mut(&mut self) -> &mut App {
+        &mut self.app
+    }
 }

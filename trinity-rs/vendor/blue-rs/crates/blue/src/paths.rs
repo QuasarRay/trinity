@@ -90,7 +90,10 @@ impl BluePaths {
         let raw = path.as_ref().to_string_lossy().replace('\\', "/");
         let candidates = self.expand_runtime_path(&raw);
 
-        if let Some(existing) = candidates.iter().find(|candidate| Path::new(candidate).exists()) {
+        if let Some(existing) = candidates
+            .iter()
+            .find(|candidate| Path::new(candidate).exists())
+        {
             return absolute_from(&self.initial_working_directory, existing);
         }
 

@@ -2,7 +2,9 @@ use bevy::prelude::Reflect;
 use serde::{Deserialize, Serialize};
 use trinity_macros::TrinityClass;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Reflect, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Reflect, Serialize, Deserialize,
+)]
 #[repr(u8)]
 pub enum VertexUsageCode {
     Position = 0,
@@ -15,7 +17,9 @@ pub enum VertexUsageCode {
     BlendWeights = 7,
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Reflect, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Reflect, Serialize, Deserialize,
+)]
 pub struct VertexDataType(pub u8);
 
 impl VertexDataType {
@@ -66,7 +70,12 @@ pub struct Tr2VertexDefinitionItem {
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Reflect, Serialize, Deserialize, TrinityClass)]
-#[trinity(module = "trinity", name = "Tr2VertexDefinition", legacy_header = "trinityal/Tr2VertexDefinition.h", kind = "value")]
+#[trinity(
+    module = "trinity",
+    name = "Tr2VertexDefinition",
+    legacy_header = "trinityal/Tr2VertexDefinition.h",
+    kind = "value"
+)]
 pub struct Tr2VertexDefinition {
     #[trinity(read, persist)]
     pub items: Vec<Tr2VertexDefinitionItem>,
@@ -107,7 +116,11 @@ impl Tr2VertexDefinition {
     }
 
     #[must_use]
-    pub fn find(&self, usage: VertexUsageCode, usage_index: u8) -> Option<&Tr2VertexDefinitionItem> {
+    pub fn find(
+        &self,
+        usage: VertexUsageCode,
+        usage_index: u8,
+    ) -> Option<&Tr2VertexDefinitionItem> {
         self.items
             .iter()
             .find(|item| item.usage == usage && item.usage_index == usage_index)

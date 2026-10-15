@@ -83,6 +83,9 @@ impl BlueRegistry {
 
     #[must_use]
     pub fn mapped_legacy_test_count(&self) -> usize {
-        self.legacy_tests.values().filter(|test| test.mapped()).count()
+        self.legacy_tests
+            .values()
+            .filter(|test| test.mapped())
+            .count()
     }
 }

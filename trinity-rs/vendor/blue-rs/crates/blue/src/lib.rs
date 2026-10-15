@@ -21,7 +21,8 @@ pub mod prelude {
     pub use blueexposure::prelude::*;
 
     pub use crate::{
-        BlueClock, BlueLifecycle, BlueLifecycleState, BlueObjectMetadata, BluePathError, BluePaths, BluePlugin,
-        BluePlugins, BlueResource, BlueResourceIndex, BlueRuntime, BlueSet, BlueStartupArgs,
+        BlueClock, BlueLifecycle, BlueLifecycleState, BlueObjectMetadata, BluePathError, BluePaths,
+        BluePlugin, BluePlugins, BlueResource, BlueResourceIndex, BlueRuntime, BlueSet,
+        BlueStartupArgs,
     };
 }

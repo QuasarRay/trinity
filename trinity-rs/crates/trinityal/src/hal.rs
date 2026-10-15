@@ -16,7 +16,14 @@ pub struct Tr2Viewport {
 impl Tr2Viewport {
     #[must_use]
     pub const fn from_size(width: u32, height: u32) -> Self {
-        Self { x: 0.0, y: 0.0, width: width as f32, height: height as f32, min_z: 0.0, max_z: 1.0 }
+        Self {
+            x: 0.0,
+            y: 0.0,
+            width: width as f32,
+            height: height as f32,
+            min_z: 0.0,
+            max_z: 1.0,
+        }
     }
 }
 
@@ -32,11 +39,17 @@ pub struct Tr2TextureCoordBox {
 
 impl Tr2TextureCoordBox {
     #[must_use]
-    pub const fn get_width(self) -> u32 { self.right.saturating_sub(self.left) }
+    pub const fn get_width(self) -> u32 {
+        self.right.saturating_sub(self.left)
+    }
     #[must_use]
-    pub const fn get_height(self) -> u32 { self.bottom.saturating_sub(self.top) }
+    pub const fn get_height(self) -> u32 {
+        self.bottom.saturating_sub(self.top)
+    }
     #[must_use]
-    pub const fn get_depth(self) -> u32 { self.back.saturating_sub(self.front) }
+    pub const fn get_depth(self) -> u32 {
+        self.back.saturating_sub(self.front)
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize)]
@@ -46,13 +59,21 @@ pub struct Tr2MsaaDesc {
 }
 
 impl Default for Tr2MsaaDesc {
-    fn default() -> Self { Self { samples: 1, quality: 0 } }
+    fn default() -> Self {
+        Self {
+            samples: 1,
+            quality: 0,
+        }
+    }
 }
 
 impl Tr2MsaaDesc {
     #[must_use]
     pub const fn new(samples: u32, quality: u32) -> Self {
-        Self { samples: if samples == 0 { 1 } else { samples }, quality }
+        Self {
+            samples: if samples == 0 { 1 } else { samples },
+            quality,
+        }
     }
 }
 
@@ -80,26 +101,51 @@ impl Default for Tr2TextureSubresource {
 impl Tr2TextureSubresource {
     #[must_use]
     pub const fn mip(mip_level: u32) -> Self {
-        Self { start_mip_level: mip_level, end_mip_level: mip_level + 1, ..Self::default() }
+        Self {
+            start_mip_level: mip_level,
+            end_mip_level: mip_level + 1,
+            ..Self::default()
+        }
     }
 
     #[must_use]
-    pub const fn get_width(self) -> u32 { self.box_.get_width() }
+    pub const fn get_width(self) -> u32 {
+        self.box_.get_width()
+    }
     #[must_use]
-    pub const fn get_height(self) -> u32 { self.box_.get_height() }
+    pub const fn get_height(self) -> u32 {
+        self.box_.get_height()
+    }
     #[must_use]
-    pub const fn get_depth(self) -> u32 { self.box_.get_depth() }
+    pub const fn get_depth(self) -> u32 {
+        self.box_.get_depth()
+    }
     #[must_use]
-    pub const fn get_mip_count(self) -> u32 { self.end_mip_level.saturating_sub(self.start_mip_level) }
+    pub const fn get_mip_count(self) -> u32 {
+        self.end_mip_level.saturating_sub(self.start_mip_level)
+    }
     #[must_use]
-    pub const fn get_face_count(self) -> u32 { self.end_face.saturating_sub(self.start_face) }
+    pub const fn get_face_count(self) -> u32 {
+        self.end_face.saturating_sub(self.start_face)
+    }
     #[must_use]
-    pub const fn has_box(self) -> bool { self.box_.right != 0 || self.box_.bottom != 0 || self.box_.back != 0 }
+    pub const fn has_box(self) -> bool {
+        self.box_.right != 0 || self.box_.bottom != 0 || self.box_.back != 0
+    }
     #[must_use]
-    pub const fn is_single_subresource(self) -> bool { self.get_mip_count() == 1 && self.get_face_count() == 1 }
+    pub const fn is_single_subresource(self) -> bool {
+        self.get_mip_count() == 1 && self.get_face_count() == 1
+    }
 
     pub fn set_rect(&mut self, left: u32, top: u32, right: u32, bottom: u32) -> &mut Self {
-        self.box_ = Tr2TextureCoordBox { left, top, front: 0, right, bottom, back: 1 };
+        self.box_ = Tr2TextureCoordBox {
+            left,
+            top,
+            front: 0,
+            right,
+            bottom,
+            back: 1,
+        };
         self
     }
 
@@ -107,7 +153,11 @@ impl Tr2TextureSubresource {
         let mip_count = texture.get_true_mip_count();
         self.start_mip_level = self.start_mip_level.min(mip_count);
         self.end_mip_level = self.end_mip_level.min(mip_count).max(self.start_mip_level);
-        let max_faces = if matches!(texture.texture_type, crate::TextureType::Cube) { 6 } else { texture.array_size.max(1) };
+        let max_faces = if matches!(texture.texture_type, crate::TextureType::Cube) {
+            6
+        } else {
+            texture.array_size.max(1)
+        };
         self.start_face = self.start_face.min(max_faces);
         self.end_face = self.end_face.min(max_faces).max(self.start_face);
         if self.is_single_subresource() && self.has_box() {

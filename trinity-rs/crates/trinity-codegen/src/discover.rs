@@ -6,7 +6,9 @@ use walkdir::WalkDir;
 
 use crate::model::{DoxygenSymbol, LegacyTest, LegacyTestKind, RustTest, VerificationClass};
 
-pub fn discover_legacy_tests(repo_root: &Path) -> Result<Vec<LegacyTest>, Box<dyn std::error::Error>> {
+pub fn discover_legacy_tests(
+    repo_root: &Path,
+) -> Result<Vec<LegacyTest>, Box<dyn std::error::Error>> {
     let mut tests = BTreeSet::new();
     let cpp_root = repo_root.join("trinityal/tests");
     if cpp_root.exists() {
@@ -14,7 +16,10 @@ pub fn discover_legacy_tests(repo_root: &Path) -> Result<Vec<LegacyTest>, Box<dy
             if !entry.file_type().is_file() {
                 continue;
             }
-            if !matches!(entry.path().extension().and_then(|x| x.to_str()), Some("cpp" | "cc" | "cxx")) {
+            if !matches!(
+                entry.path().extension().and_then(|x| x.to_str()),
+                Some("cpp" | "cc" | "cxx")
+            ) {
                 continue;
             }
             let relative = relative(repo_root, entry.path());
@@ -27,7 +32,9 @@ pub fn discover_legacy_tests(repo_root: &Path) -> Result<Vec<LegacyTest>, Box<dy
     let python_root = repo_root.join("trinity/tests/Python/tests");
     if python_root.exists() {
         for entry in WalkDir::new(python_root).into_iter().filter_map(Result::ok) {
-            if !entry.file_type().is_file() || entry.path().extension().and_then(|x| x.to_str()) != Some("py") {
+            if !entry.file_type().is_file()
+                || entry.path().extension().and_then(|x| x.to_str()) != Some("py")
+            {
                 continue;
             }
             let relative = relative(repo_root, entry.path());
@@ -41,13 +48,15 @@ pub fn discover_legacy_tests(repo_root: &Path) -> Result<Vec<LegacyTest>, Box<dy
 
 #[must_use]
 pub fn discover_gtest_text(source: &str, text: &str) -> Vec<LegacyTest> {
-    let regex = Regex::new(r"\bTEST(?:_F|_P)?\s*\(\s*([^,]+)\s*,\s*([^)]+)\)").expect("static regex");
+    let regex =
+        Regex::new(r"\bTEST(?:_F|_P)?\s*\(\s*([^,]+)\s*,\s*([^)]+)\)").expect("static regex");
     let mut out = BTreeSet::new();
     for captures in regex.captures_iter(text) {
         let suite = captures[1].trim().to_owned();
         let name = captures[2].trim().to_owned();
         let offset = captures.get(0).map_or(0, |m| m.start());
-        let line = u32::try_from(text[..offset].bytes().filter(|byte| *byte == b'\n').count() + 1).ok();
+        let line =
+            u32::try_from(text[..offset].bytes().filter(|byte| *byte == b'\n').count() + 1).ok();
         let suggested_verification = classify_gtest(source, &suite, &name);
         out.insert(LegacyTest {
             id: format!("{source}::{suite}::{name}"),
@@ -72,21 +81,35 @@ pub fn discover_python_text(source: &str, text: &str) -> Vec<LegacyTest> {
             continue;
         }
         let indent = line.len().saturating_sub(trimmed.len());
-        while classes.last().is_some_and(|(class_indent, _)| indent <= *class_indent) {
+        while classes
+            .last()
+            .is_some_and(|(class_indent, _)| indent <= *class_indent)
+        {
             classes.pop();
         }
         if let Some(rest) = trimmed.strip_prefix("class ") {
-            if let Some(name) = rest.split(['(', ':']).next().map(str::trim).filter(|name| !name.is_empty()) {
+            if let Some(name) = rest
+                .split(['(', ':'])
+                .next()
+                .map(str::trim)
+                .filter(|name| !name.is_empty())
+            {
                 classes.push((indent, name.to_owned()));
             }
             continue;
         }
-        let Some(rest) = trimmed.strip_prefix("def ") else { continue; };
-        let Some(name) = rest.split('(').next().map(str::trim) else { continue; };
+        let Some(rest) = trimmed.strip_prefix("def ") else {
+            continue;
+        };
+        let Some(name) = rest.split('(').next().map(str::trim) else {
+            continue;
+        };
         if !name.starts_with("test_") {
             continue;
         }
-        let suite = classes.last().map_or_else(|| "module".to_owned(), |(_, name)| name.clone());
+        let suite = classes
+            .last()
+            .map_or_else(|| "module".to_owned(), |(_, name)| name.clone());
         out.insert(LegacyTest {
             id: format!("{source}::{suite}::{name}"),
             source: source.to_owned(),
@@ -112,19 +135,37 @@ fn classify_gtest(source: &str, suite: &str, name: &str) -> VerificationClass {
     if identity.contains("screenshot") {
         return VerificationClass::Screenshot;
     }
-    if ["render", "swapchain", "raytracing", "compute", "gpu", "occlusion", "fence", "texture", "buffer", "shader"]
-        .iter()
-        .any(|needle| identity.contains(needle))
+    if [
+        "render",
+        "swapchain",
+        "raytracing",
+        "compute",
+        "gpu",
+        "occlusion",
+        "fence",
+        "texture",
+        "buffer",
+        "shader",
+    ]
+    .iter()
+    .any(|needle| identity.contains(needle))
     {
         return VerificationClass::RenderDevice;
     }
     VerificationClass::Integration
 }
 
-pub fn discover_rust_tests(workspace_root: &Path) -> Result<Vec<RustTest>, Box<dyn std::error::Error>> {
+pub fn discover_rust_tests(
+    workspace_root: &Path,
+) -> Result<Vec<RustTest>, Box<dyn std::error::Error>> {
     let mut tests = BTreeSet::new();
-    for entry in WalkDir::new(workspace_root.join("crates")).into_iter().filter_map(Result::ok) {
-        if !entry.file_type().is_file() || entry.path().extension().and_then(|x| x.to_str()) != Some("rs") {
+    for entry in WalkDir::new(workspace_root.join("crates"))
+        .into_iter()
+        .filter_map(Result::ok)
+    {
+        if !entry.file_type().is_file()
+            || entry.path().extension().and_then(|x| x.to_str()) != Some("rs")
+        {
             continue;
         }
         let normalized = entry.path().to_string_lossy().replace('\\', "/");
@@ -148,7 +189,11 @@ fn collect_rust_tests(
 ) -> Result<(), Box<dyn std::error::Error>> {
     for item in items {
         if let syn::Item::Fn(function) = item {
-            let Some(attr) = function.attrs.iter().find(|attr| attr.path().is_ident("trinity_test")) else {
+            let Some(attr) = function
+                .attrs
+                .iter()
+                .find(|attr| attr.path().is_ident("trinity_test"))
+            else {
                 continue;
             };
             let mut legacy = None;
@@ -173,7 +218,10 @@ fn collect_rust_tests(
             let function_name = function.sig.ident.to_string();
             out.insert(RustTest {
                 crate_name: crate_name.to_owned(),
-                source: source.strip_prefix(&format!("crates/{crate_name}/tests/")).unwrap_or(source).to_owned(),
+                source: source
+                    .strip_prefix(&format!("crates/{crate_name}/tests/"))
+                    .unwrap_or(source)
+                    .to_owned(),
                 body_name: format!("__trinity_test_body_{function_name}"),
                 function: function_name,
                 legacy: legacy.unwrap_or_default(),
@@ -184,19 +232,28 @@ fn collect_rust_tests(
     Ok(())
 }
 
-pub fn discover_doxygen_symbols(xml_dir: &Path) -> Result<Vec<DoxygenSymbol>, Box<dyn std::error::Error>> {
+pub fn discover_doxygen_symbols(
+    xml_dir: &Path,
+) -> Result<Vec<DoxygenSymbol>, Box<dyn std::error::Error>> {
     let mut symbols = BTreeSet::new();
     if !xml_dir.exists() {
         return Ok(Vec::new());
     }
     for entry in WalkDir::new(xml_dir).into_iter().filter_map(Result::ok) {
-        if !entry.file_type().is_file() || entry.path().extension().and_then(|x| x.to_str()) != Some("xml") {
+        if !entry.file_type().is_file()
+            || entry.path().extension().and_then(|x| x.to_str()) != Some("xml")
+        {
             continue;
         }
         let bytes = fs::read(entry.path())?;
         let text = String::from_utf8_lossy(&bytes);
-        let Ok(document) = Document::parse(&text) else { continue; };
-        for compound in document.descendants().filter(|node| node.has_tag_name("compounddef")) {
+        let Ok(document) = Document::parse(&text) else {
+            continue;
+        };
+        for compound in document
+            .descendants()
+            .filter(|node| node.has_tag_name("compounddef"))
+        {
             let compound_name = child_text(compound, "compoundname").unwrap_or_default();
             let source = compound
                 .descendants()
@@ -211,8 +268,13 @@ pub fn discover_doxygen_symbols(xml_dir: &Path) -> Result<Vec<DoxygenSymbol>, Bo
                     kind: compound.attribute("kind").unwrap_or("compound").to_owned(),
                 });
             }
-            for member in compound.descendants().filter(|node| node.has_tag_name("memberdef")) {
-                let Some(name) = child_text(member, "name") else { continue; };
+            for member in compound
+                .descendants()
+                .filter(|node| node.has_tag_name("memberdef"))
+            {
+                let Some(name) = child_text(member, "name") else {
+                    continue;
+                };
                 symbols.insert(DoxygenSymbol {
                     source: member
                         .descendants()
@@ -220,7 +282,11 @@ pub fn discover_doxygen_symbols(xml_dir: &Path) -> Result<Vec<DoxygenSymbol>, Bo
                         .and_then(|node| node.attribute("file"))
                         .unwrap_or(&source)
                         .replace('\\', "/"),
-                    qualified_name: if compound_name.is_empty() { name } else { format!("{compound_name}::{name}") },
+                    qualified_name: if compound_name.is_empty() {
+                        name
+                    } else {
+                        format!("{compound_name}::{name}")
+                    },
                     kind: member.attribute("kind").unwrap_or("member").to_owned(),
                 });
             }
@@ -239,5 +305,8 @@ fn child_text(node: roxmltree::Node<'_, '_>, tag: &str) -> Option<String> {
 }
 
 fn relative(root: &Path, path: &Path) -> String {
-    path.strip_prefix(root).unwrap_or(path).to_string_lossy().replace('\\', "/")
+    path.strip_prefix(root)
+        .unwrap_or(path)
+        .to_string_lossy()
+        .replace('\\', "/")
 }

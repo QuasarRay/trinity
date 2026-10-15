@@ -16,7 +16,8 @@ fn blue_kani_blueexposure__registry__duplicate_registration_is_idempotent_by_nam
 }
 
 #[kani::proof]
-fn blue_kani_blueexposure__registry__generated_function_descriptor_preserves_carbon_registration_metadata() {
+fn blue_kani_blueexposure__registry__generated_function_descriptor_preserves_carbon_registration_metadata()
+ {
     __blue_source_registry_rs::__blue_test_body_generated_function_descriptor_preserves_carbon_registration_metadata();
 }
 

@@ -36,7 +36,9 @@ impl BlueRuntime {
     }
 
     pub fn set_startup_args(&mut self, args: impl IntoIterator<Item = String>) {
-        self.world_mut().resource_mut::<BlueStartupArgs>().replace(args);
+        self.world_mut()
+            .resource_mut::<BlueStartupArgs>()
+            .replace(args);
     }
 
     pub fn request_shutdown(&mut self, exit_code: i32) {

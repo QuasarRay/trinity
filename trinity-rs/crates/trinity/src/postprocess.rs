@@ -17,7 +17,12 @@ pub struct Tr2PPParameter {
 
 #[derive(Component, Reflect, Clone, Debug, Default, TrinityClass)]
 #[reflect(Component)]
-#[trinity(module = "trinity", name = "Tr2PPGenericEffect", legacy_header = "doc/source/eve/generic-pp-effects.rst", kind = "component")]
+#[trinity(
+    module = "trinity",
+    name = "Tr2PPGenericEffect",
+    legacy_header = "doc/source/eve/generic-pp-effects.rst",
+    kind = "component"
+)]
 pub struct Tr2PPGenericEffect {
     #[trinity(read, write, persist)]
     pub effect: String,

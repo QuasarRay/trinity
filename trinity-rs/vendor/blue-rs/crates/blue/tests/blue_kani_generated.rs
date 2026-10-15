@@ -22,7 +22,8 @@ fn blue_kani_blue__runtime__resource_index_uses_bevy_assets_as_storage() {
 
 #[kani::proof]
 fn blue_kani_blue__runtime__search_paths_match_blue_set_get_and_clear_semantics() {
-    __blue_source_runtime_rs::__blue_test_body_search_paths_match_blue_set_get_and_clear_semantics();
+    __blue_source_runtime_rs::__blue_test_body_search_paths_match_blue_set_get_and_clear_semantics(
+    );
 }
 
 #[kani::proof]

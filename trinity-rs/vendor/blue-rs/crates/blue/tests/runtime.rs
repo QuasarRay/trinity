@@ -36,7 +36,9 @@ fn resource_index_uses_bevy_assets_as_storage() {
     let index = runtime.world().resource::<BlueResourceIndex>();
     assert_eq!(index.get("res:/hello"), Some(&handle));
 
-    let assets = runtime.world().resource::<bevy::prelude::Assets<BlueResource>>();
+    let assets = runtime
+        .world()
+        .resource::<bevy::prelude::Assets<BlueResource>>();
     let asset = assets.get(&handle).expect("resource asset must exist");
     assert_eq!(asset.bytes, b"blue");
 }

@@ -5,7 +5,12 @@ use trinity_macros::TrinityClass;
 use crate::{PixelFormat, TextureType};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize, TrinityClass)]
-#[trinity(module = "trinity", name = "Tr2BitmapDimensions", legacy_header = "trinityal/Tr2BitmapDimensions.h", kind = "value")]
+#[trinity(
+    module = "trinity",
+    name = "Tr2BitmapDimensions",
+    legacy_header = "trinityal/Tr2BitmapDimensions.h",
+    kind = "value"
+)]
 pub struct Tr2BitmapDimensions {
     #[trinity(read, write, persist)]
     pub texture_type: TextureType,
@@ -39,17 +44,29 @@ impl Default for Tr2BitmapDimensions {
 
 impl Tr2BitmapDimensions {
     #[must_use]
-    pub const fn get_width(self) -> u32 { self.width }
+    pub const fn get_width(self) -> u32 {
+        self.width
+    }
     #[must_use]
-    pub const fn get_height(self) -> u32 { self.height }
+    pub const fn get_height(self) -> u32 {
+        self.height
+    }
     #[must_use]
-    pub const fn get_depth(self) -> u32 { self.volume_depth }
+    pub const fn get_depth(self) -> u32 {
+        self.volume_depth
+    }
     #[must_use]
-    pub const fn get_mip_count(self) -> u32 { self.mip_count }
+    pub const fn get_mip_count(self) -> u32 {
+        self.mip_count
+    }
     #[must_use]
-    pub const fn get_format(self) -> PixelFormat { self.format }
+    pub const fn get_format(self) -> PixelFormat {
+        self.format
+    }
     #[must_use]
-    pub const fn get_type(self) -> TextureType { self.texture_type }
+    pub const fn get_type(self) -> TextureType {
+        self.texture_type
+    }
 
     #[must_use]
     pub const fn get_true_mip_count(self) -> u32 {

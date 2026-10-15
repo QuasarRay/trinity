@@ -1,5 +1,5 @@
 use bevy::reflect::GetTypeRegistration;
-use pyo3::{prelude::*, types::PyModuleMethods, PyClass};
+use pyo3::{PyClass, prelude::*, types::PyModuleMethods};
 
 use crate::BlueClassInfo;
 

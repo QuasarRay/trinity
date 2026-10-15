@@ -72,7 +72,12 @@ impl BlueEnumDescriptor {
 
     #[must_use]
     pub fn info(self) -> BlueEnumInfo {
-        BlueEnumInfo::new(self.module, self.name, self.doc, self.variants.iter().copied())
+        BlueEnumInfo::new(
+            self.module,
+            self.name,
+            self.doc,
+            self.variants.iter().copied(),
+        )
     }
 
     pub fn register_python(self, module: &Bound<'_, PyModule>) -> PyResult<()> {

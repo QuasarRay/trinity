@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{
-    parse::Parser, parse_macro_input, Data, DeriveInput, Fields, ItemFn, LitStr, ReturnType,
+    Data, DeriveInput, Fields, ItemFn, LitStr, ReturnType, parse::Parser, parse_macro_input,
 };
 
 #[derive(Clone, Copy)]
@@ -47,7 +47,11 @@ impl Default for ClassArgs {
 
 fn class_args(input: &DeriveInput) -> syn::Result<ClassArgs> {
     let mut args = ClassArgs::default();
-    for attr in input.attrs.iter().filter(|attr| attr.path().is_ident("trinity")) {
+    for attr in input
+        .attrs
+        .iter()
+        .filter(|attr| attr.path().is_ident("trinity"))
+    {
         attr.parse_nested_meta(|meta| {
             if meta.path.is_ident("module") {
                 args.module = meta.value()?.parse::<LitStr>()?.value();
@@ -212,7 +216,10 @@ fn parse_test_args(tokens: proc_macro2::TokenStream) -> syn::Result<TestArgs> {
     parser.parse2(tokens)?;
     Ok(TestArgs {
         legacy: legacy.ok_or_else(|| {
-            syn::Error::new(proc_macro2::Span::call_site(), "legacy = \"...\" is required")
+            syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "legacy = \"...\" is required",
+            )
         })?,
         verification,
     })

@@ -1,6 +1,9 @@
 use std::{env, path::PathBuf};
 
-use trinity_codegen::{discover_doxygen_symbols, discover_legacy_tests, discover_rust_tests, write_inventory, write_kani_harnesses, Inventory};
+use trinity_codegen::{
+    Inventory, discover_doxygen_symbols, discover_legacy_tests, discover_rust_tests,
+    write_inventory, write_kani_harnesses,
+};
 
 const BASELINE_COMMIT: &str = "a9343c8904310374f284c38a71998af0672b3184";
 const DOCS_SHA256: &str = "9f77e297e1c0bcb83f0cac2cdb390ac43de9e341db9d11e6e0efce9ad59ec255";
@@ -19,8 +22,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     while let Some(arg) = args.next() {
         match arg.as_str() {
-            "--workspace-root" => workspace_root = PathBuf::from(args.next().ok_or("missing --workspace-root value")?),
-            "--repo-root" => repo_root = PathBuf::from(args.next().ok_or("missing --repo-root value")?),
+            "--workspace-root" => {
+                workspace_root = PathBuf::from(args.next().ok_or("missing --workspace-root value")?)
+            }
+            "--repo-root" => {
+                repo_root = PathBuf::from(args.next().ok_or("missing --repo-root value")?)
+            }
             "--xml" => xml_dir = PathBuf::from(args.next().ok_or("missing --xml value")?),
             "--out" => out_dir = PathBuf::from(args.next().ok_or("missing --out value")?),
             "--deny-unmapped-kani" => deny_unmapped_kani = true,
@@ -36,13 +43,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         rust_tests: discover_rust_tests(&workspace_root)?,
     };
     write_inventory(&workspace_root.join(&out_dir), &inventory)?;
-    write_kani_harnesses(&workspace_root, &workspace_root.join(&out_dir), &inventory.rust_tests)?;
+    write_kani_harnesses(
+        &workspace_root,
+        &workspace_root.join(&out_dir),
+        &inventory.rust_tests,
+    )?;
 
     if deny_unmapped_kani {
-        let mapped = inventory.rust_tests.iter().map(|test| test.legacy.as_str()).collect::<std::collections::BTreeSet<_>>();
-        let unmapped = inventory.legacy_tests.iter().filter(|test| test.suggested_verification == trinity_codegen::VerificationClass::Kani && !mapped.contains(test.id.as_str())).count();
+        let mapped = inventory
+            .rust_tests
+            .iter()
+            .map(|test| test.legacy.as_str())
+            .collect::<std::collections::BTreeSet<_>>();
+        let unmapped = inventory
+            .legacy_tests
+            .iter()
+            .filter(|test| {
+                test.suggested_verification == trinity_codegen::VerificationClass::Kani
+                    && !mapped.contains(test.id.as_str())
+            })
+            .count();
         if unmapped != 0 {
-            return Err(format!("{unmapped} Kani-suitable legacy contracts remain unmapped").into());
+            return Err(
+                format!("{unmapped} Kani-suitable legacy contracts remain unmapped").into(),
+            );
         }
     }
 
@@ -51,7 +75,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         inventory.doxygen_symbols.len(),
         inventory.legacy_tests.len(),
         inventory.rust_tests.len(),
-        inventory.rust_tests.iter().filter(|test| test.verification == trinity_codegen::VerificationClass::Kani).count(),
+        inventory
+            .rust_tests
+            .iter()
+            .filter(|test| test.verification == trinity_codegen::VerificationClass::Kani)
+            .count(),
     );
     Ok(())
 }

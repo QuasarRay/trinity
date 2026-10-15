@@ -2,7 +2,7 @@ use pyo3::{prelude::*, types::PyModuleMethods};
 use trinity_meta::TrinityRegistry;
 use trinity_rs::TrinityRuntime;
 use trinityal::{
-    ALResult, ALResultCategory, PixelFormat, TextureType, Tr2BitmapDimensions, E_INVALIDARG,
+    ALResult, ALResultCategory, E_INVALIDARG, PixelFormat, TextureType, Tr2BitmapDimensions,
 };
 
 #[pyclass(name = "ALResult", module = "_trinity_rs")]
@@ -15,10 +15,16 @@ pub struct PyALResult {
 impl PyALResult {
     #[new]
     #[pyo3(signature = (result = 0))]
-    fn new(result: i32) -> Self { Self { inner: ALResult::new(result) } }
+    fn new(result: i32) -> Self {
+        Self {
+            inner: ALResult::new(result),
+        }
+    }
 
     #[pyo3(name = "GetResult")]
-    fn get_result(&self) -> i32 { self.inner.get_result() }
+    fn get_result(&self) -> i32 {
+        self.inner.get_result()
+    }
 
     #[pyo3(name = "GetCategory")]
     fn get_category(&self) -> &'static str {
@@ -32,9 +38,13 @@ impl PyALResult {
     }
 
     #[pyo3(name = "IsSuccess")]
-    fn is_success(&self) -> bool { self.inner.is_success() }
+    fn is_success(&self) -> bool {
+        self.inner.is_success()
+    }
 
-    fn __int__(&self) -> i32 { self.inner.get_result() }
+    fn __int__(&self) -> i32 {
+        self.inner.get_result()
+    }
 }
 
 #[pyclass(name = "Tr2BitmapDimensions", module = "_trinity_rs")]
@@ -46,36 +56,60 @@ pub struct PyTr2BitmapDimensions {
 #[pymethods]
 impl PyTr2BitmapDimensions {
     #[new]
-    fn new() -> Self { Self::default() }
+    fn new() -> Self {
+        Self::default()
+    }
 
     #[getter]
-    fn width(&self) -> u32 { self.inner.width }
+    fn width(&self) -> u32 {
+        self.inner.width
+    }
     #[setter]
-    fn set_width(&mut self, value: u32) { self.inner.width = value; }
+    fn set_width(&mut self, value: u32) {
+        self.inner.width = value;
+    }
 
     #[getter]
-    fn height(&self) -> u32 { self.inner.height }
+    fn height(&self) -> u32 {
+        self.inner.height
+    }
     #[setter]
-    fn set_height(&mut self, value: u32) { self.inner.height = value; }
+    fn set_height(&mut self, value: u32) {
+        self.inner.height = value;
+    }
 
     #[getter]
-    fn depth(&self) -> u32 { self.inner.volume_depth }
+    fn depth(&self) -> u32 {
+        self.inner.volume_depth
+    }
     #[setter]
-    fn set_depth(&mut self, value: u32) { self.inner.volume_depth = value; }
+    fn set_depth(&mut self, value: u32) {
+        self.inner.volume_depth = value;
+    }
 
     #[getter]
-    fn mip_count(&self) -> u32 { self.inner.mip_count }
+    fn mip_count(&self) -> u32 {
+        self.inner.mip_count
+    }
     #[setter]
-    fn set_mip_count(&mut self, value: u32) { self.inner.mip_count = value; }
+    fn set_mip_count(&mut self, value: u32) {
+        self.inner.mip_count = value;
+    }
 
     #[pyo3(name = "GetTrueMipCount")]
-    fn get_true_mip_count(&self) -> u32 { self.inner.get_true_mip_count() }
+    fn get_true_mip_count(&self) -> u32 {
+        self.inner.get_true_mip_count()
+    }
 
     #[pyo3(name = "GetMipWidth")]
-    fn get_mip_width(&self, mip: u32) -> u32 { self.inner.get_mip_width(mip) }
+    fn get_mip_width(&self, mip: u32) -> u32 {
+        self.inner.get_mip_width(mip)
+    }
 
     #[pyo3(name = "GetMipHeight")]
-    fn get_mip_height(&self, mip: u32) -> u32 { self.inner.get_mip_height(mip) }
+    fn get_mip_height(&self, mip: u32) -> u32 {
+        self.inner.get_mip_height(mip)
+    }
 
     #[pyo3(name = "Set2D")]
     fn set_2d(&mut self, width: u32, height: u32, mip_count: u32) {
@@ -87,7 +121,9 @@ impl PyTr2BitmapDimensions {
     }
 
     #[pyo3(name = "SetFormatB8G8R8A8")]
-    fn set_format_bgra8(&mut self) { self.inner.format = PixelFormat::B8G8R8A8Unorm; }
+    fn set_format_bgra8(&mut self) {
+        self.inner.format = PixelFormat::B8G8R8A8Unorm;
+    }
 }
 
 #[pyclass(name = "Runtime", module = "_trinity_rs", unsendable)]
@@ -98,22 +134,37 @@ pub struct PyTrinityRuntime {
 #[pymethods]
 impl PyTrinityRuntime {
     #[new]
-    fn new() -> Self { Self { runtime: TrinityRuntime::new() } }
+    fn new() -> Self {
+        Self {
+            runtime: TrinityRuntime::new(),
+        }
+    }
 
     #[pyo3(name = "Update")]
-    fn update(&mut self) { self.runtime.update(); }
+    fn update(&mut self) {
+        self.runtime.update();
+    }
 
     #[pyo3(name = "RegisteredClasses")]
     fn registered_classes(&self) -> Vec<String> {
         self.runtime
             .world()
             .get_resource::<TrinityRegistry>()
-            .map_or_else(Vec::new, |registry| registry.classes().map(|info| info.qualified_name()).collect())
+            .map_or_else(Vec::new, |registry| {
+                registry
+                    .classes()
+                    .map(|info| info.qualified_name())
+                    .collect()
+            })
     }
 }
 
 #[pyfunction(name = "InvalidArgument")]
-fn invalid_argument() -> PyALResult { PyALResult { inner: ALResult::new(E_INVALIDARG) } }
+fn invalid_argument() -> PyALResult {
+    PyALResult {
+        inner: ALResult::new(E_INVALIDARG),
+    }
+}
 
 #[pymodule]
 fn _trinity_rs(module: &Bound<'_, PyModule>) -> PyResult<()> {

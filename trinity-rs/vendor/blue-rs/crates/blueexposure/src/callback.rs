@@ -2,7 +2,11 @@ use pyo3::{prelude::*, types::PyAny};
 
 use crate::{blue_methods, blue_pyclass};
 
-#[blue_pyclass(module = "blueexposure", name = "BlueScriptCallback", kind = "component")]
+#[blue_pyclass(
+    module = "blueexposure",
+    name = "BlueScriptCallback",
+    kind = "component"
+)]
 #[derive(Default)]
 pub struct BlueScriptCallback {
     #[blue(skip)]
@@ -31,7 +35,9 @@ impl BlueScriptCallback {
     }
 
     pub fn get(&self, py: Python<'_>) -> Option<Py<PyAny>> {
-        self.callback.as_ref().map(|callback| callback.clone_ref(py))
+        self.callback
+            .as_ref()
+            .map(|callback| callback.clone_ref(py))
     }
 
     pub fn call0(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {

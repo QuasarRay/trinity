@@ -2,7 +2,10 @@ use bevy::{asset::Asset, prelude::*};
 use serde::{Deserialize, Serialize};
 use trinity_macros::TrinityClass;
 
-use crate::{ALResult, Tr2BitmapDimensions, Tr2CpuUsage, Tr2GpuUsage, Tr2MsaaDesc, E_INVALIDARG, E_INVALIDCALL, S_OK};
+use crate::{
+    ALResult, E_INVALIDARG, E_INVALIDCALL, S_OK, Tr2BitmapDimensions, Tr2CpuUsage, Tr2GpuUsage,
+    Tr2MsaaDesc,
+};
 
 #[derive(Asset, Reflect, Clone, Debug)]
 pub struct Tr2TextureAsset {
@@ -16,7 +19,12 @@ pub struct Tr2TextureAsset {
 
 #[derive(Component, Reflect, Clone, Debug, Default, TrinityClass)]
 #[reflect(Component)]
-#[trinity(module = "trinity", name = "Tr2TextureAL", legacy_header = "trinityal/include/Tr2TextureAL.h", kind = "component")]
+#[trinity(
+    module = "trinity",
+    name = "Tr2TextureAL",
+    legacy_header = "trinityal/include/Tr2TextureAL.h",
+    kind = "component"
+)]
 pub struct Tr2TextureAL {
     #[trinity(skip)]
     handle: Option<Handle<Tr2TextureAsset>>,
@@ -24,7 +32,9 @@ pub struct Tr2TextureAL {
 
 impl Tr2TextureAL {
     #[must_use]
-    pub fn is_valid(&self) -> bool { self.handle.is_some() }
+    pub fn is_valid(&self) -> bool {
+        self.handle.is_some()
+    }
 
     pub fn create(
         &mut self,
@@ -35,7 +45,11 @@ impl Tr2TextureAL {
         cpu_usage: Tr2CpuUsage,
         initial_data: Option<&[u8]>,
     ) -> ALResult {
-        if desc.width == 0 || desc.height == 0 || desc.get_true_mip_count() == 0 || desc.format.bits_per_pixel() == 0 {
+        if desc.width == 0
+            || desc.height == 0
+            || desc.get_true_mip_count() == 0
+            || desc.format.bits_per_pixel() == 0
+        {
             return ALResult::new(E_INVALIDARG);
         }
         let expected = desc.get_mip_size(0) as usize;
@@ -46,34 +60,77 @@ impl Tr2TextureAL {
         if let Some(data) = initial_data {
             bytes.copy_from_slice(&data[..expected]);
         }
-        self.handle = Some(assets.add(Tr2TextureAsset { desc, msaa, gpu_usage, cpu_usage, bytes, name: String::new() }));
+        self.handle = Some(assets.add(Tr2TextureAsset {
+            desc,
+            msaa,
+            gpu_usage,
+            cpu_usage,
+            bytes,
+            name: String::new(),
+        }));
         ALResult::new(S_OK)
     }
 
     #[must_use]
-    pub fn get_desc<'a>(&self, assets: &'a Assets<Tr2TextureAsset>) -> Option<&'a Tr2BitmapDimensions> {
-        self.handle.as_ref().and_then(|handle| assets.get(handle)).map(|asset| &asset.desc)
+    pub fn get_desc<'a>(
+        &self,
+        assets: &'a Assets<Tr2TextureAsset>,
+    ) -> Option<&'a Tr2BitmapDimensions> {
+        self.handle
+            .as_ref()
+            .and_then(|handle| assets.get(handle))
+            .map(|asset| &asset.desc)
     }
 
     #[must_use]
-    pub fn get_width(&self, assets: &Assets<Tr2TextureAsset>) -> u32 { self.get_desc(assets).map_or(0, |desc| desc.width) }
+    pub fn get_width(&self, assets: &Assets<Tr2TextureAsset>) -> u32 {
+        self.get_desc(assets).map_or(0, |desc| desc.width)
+    }
     #[must_use]
-    pub fn get_height(&self, assets: &Assets<Tr2TextureAsset>) -> u32 { self.get_desc(assets).map_or(0, |desc| desc.height) }
+    pub fn get_height(&self, assets: &Assets<Tr2TextureAsset>) -> u32 {
+        self.get_desc(assets).map_or(0, |desc| desc.height)
+    }
     #[must_use]
-    pub fn get_depth(&self, assets: &Assets<Tr2TextureAsset>) -> u32 { self.get_desc(assets).map_or(0, |desc| desc.volume_depth) }
+    pub fn get_depth(&self, assets: &Assets<Tr2TextureAsset>) -> u32 {
+        self.get_desc(assets).map_or(0, |desc| desc.volume_depth)
+    }
     #[must_use]
-    pub fn get_mip_count(&self, assets: &Assets<Tr2TextureAsset>) -> u32 { self.get_desc(assets).map_or(0, |desc| desc.mip_count) }
+    pub fn get_mip_count(&self, assets: &Assets<Tr2TextureAsset>) -> u32 {
+        self.get_desc(assets).map_or(0, |desc| desc.mip_count)
+    }
     #[must_use]
-    pub fn get_true_mip_count(&self, assets: &Assets<Tr2TextureAsset>) -> u32 { self.get_desc(assets).map_or(0, |desc| desc.get_true_mip_count()) }
+    pub fn get_true_mip_count(&self, assets: &Assets<Tr2TextureAsset>) -> u32 {
+        self.get_desc(assets)
+            .map_or(0, |desc| desc.get_true_mip_count())
+    }
 
-    pub fn read_bytes<'a>(&self, assets: &'a Assets<Tr2TextureAsset>) -> Result<&'a [u8], ALResult> {
-        let asset = self.handle.as_ref().and_then(|handle| assets.get(handle)).ok_or(ALResult::new(E_INVALIDCALL))?;
-        if !asset.cpu_usage.can_read() { return Err(ALResult::new(E_INVALIDCALL)); }
+    pub fn read_bytes<'a>(
+        &self,
+        assets: &'a Assets<Tr2TextureAsset>,
+    ) -> Result<&'a [u8], ALResult> {
+        let asset = self
+            .handle
+            .as_ref()
+            .and_then(|handle| assets.get(handle))
+            .ok_or(ALResult::new(E_INVALIDCALL))?;
+        if !asset.cpu_usage.can_read() {
+            return Err(ALResult::new(E_INVALIDCALL));
+        }
         Ok(&asset.bytes)
     }
 
-    pub fn set_name(&mut self, assets: &mut Assets<Tr2TextureAsset>, name: impl Into<String>) -> ALResult {
-        let Some(asset) = self.handle.as_ref().and_then(|handle| assets.get_mut(handle)) else { return ALResult::new(E_INVALIDCALL); };
+    pub fn set_name(
+        &mut self,
+        assets: &mut Assets<Tr2TextureAsset>,
+        name: impl Into<String>,
+    ) -> ALResult {
+        let Some(asset) = self
+            .handle
+            .as_ref()
+            .and_then(|handle| assets.get_mut(handle))
+        else {
+            return ALResult::new(E_INVALIDCALL);
+        };
         asset.name = name.into();
         ALResult::new(S_OK)
     }
