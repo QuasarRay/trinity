@@ -1,0 +1,83 @@
+use bevy::prelude::Reflect;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Reflect, Serialize, Deserialize)]
+#[repr(i32)]
+pub enum PixelFormat {
+    #[default]
+    Unknown = 0,
+    B8G8R8A8Unorm = 1,
+    R16G16B16A16Float = 2,
+    Bc1Unorm = 3,
+}
+
+impl PixelFormat {
+    #[must_use]
+    pub const fn bits_per_pixel(self) -> u32 {
+        match self {
+            Self::Unknown => 0,
+            Self::B8G8R8A8Unorm => 32,
+            Self::R16G16B16A16Float => 64,
+            Self::Bc1Unorm => 4,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Reflect, Serialize, Deserialize)]
+#[repr(i32)]
+pub enum TextureType {
+    #[default]
+    Invalid = 0,
+    Texture2D = 1,
+    Texture3D = 2,
+    Cube = 3,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, Reflect, Serialize, Deserialize)]
+pub enum Tr2GpuUsage {
+    #[default]
+    None,
+    VertexBuffer,
+    IndexBuffer,
+    ConstantBuffer,
+    ShaderResource,
+    RenderTarget,
+    DepthStencil,
+    UnorderedAccess,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, Reflect, Serialize, Deserialize)]
+pub enum Tr2CpuUsage {
+    #[default]
+    None,
+    Read,
+    Write,
+    ReadWrite,
+}
+
+impl Tr2CpuUsage {
+    #[must_use]
+    pub const fn can_read(self) -> bool {
+        matches!(self, Self::Read | Self::ReadWrite)
+    }
+
+    #[must_use]
+    pub const fn can_write(self) -> bool {
+        matches!(self, Self::Write | Self::ReadWrite)
+    }
+}
+
+#[allow(non_snake_case)]
+pub mod Tr2RenderContextEnum {
+    pub use super::{PixelFormat, TextureType};
+
+    pub const PIXEL_FORMAT_UNKNOWN: PixelFormat = PixelFormat::Unknown;
+    pub const PIXEL_FORMAT_B8G8R8A8_UNORM: PixelFormat = PixelFormat::B8G8R8A8Unorm;
+    pub const PIXEL_FORMAT_R16G16B16A16_FLOAT: PixelFormat = PixelFormat::R16G16B16A16Float;
+    pub const PIXEL_FORMAT_BC1_UNORM: PixelFormat = PixelFormat::Bc1Unorm;
+
+    pub const TEX_TYPE_INVALID: TextureType = TextureType::Invalid;
+    pub const TEX_TYPE_2D: TextureType = TextureType::Texture2D;
+    pub const TEX_TYPE_3D: TextureType = TextureType::Texture3D;
+    pub const TEX_TYPE_CUBE: TextureType = TextureType::Cube;
+}

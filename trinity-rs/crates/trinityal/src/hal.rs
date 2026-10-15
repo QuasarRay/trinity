@@ -1,0 +1,136 @@
+use bevy::prelude::Reflect;
+use serde::{Deserialize, Serialize};
+
+use crate::Tr2BitmapDimensions;
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Reflect, Serialize, Deserialize)]
+pub struct Tr2Viewport {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+    pub min_z: f32,
+    pub max_z: f32,
+}
+
+impl Tr2Viewport {
+    #[must_use]
+    pub const fn from_size(width: u32, height: u32) -> Self {
+        Self { x: 0.0, y: 0.0, width: width as f32, height: height as f32, min_z: 0.0, max_z: 1.0 }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Reflect, Serialize, Deserialize)]
+pub struct Tr2TextureCoordBox {
+    pub left: u32,
+    pub top: u32,
+    pub front: u32,
+    pub right: u32,
+    pub bottom: u32,
+    pub back: u32,
+}
+
+impl Tr2TextureCoordBox {
+    #[must_use]
+    pub const fn get_width(self) -> u32 { self.right.saturating_sub(self.left) }
+    #[must_use]
+    pub const fn get_height(self) -> u32 { self.bottom.saturating_sub(self.top) }
+    #[must_use]
+    pub const fn get_depth(self) -> u32 { self.back.saturating_sub(self.front) }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize)]
+pub struct Tr2MsaaDesc {
+    pub samples: u32,
+    pub quality: u32,
+}
+
+impl Default for Tr2MsaaDesc {
+    fn default() -> Self { Self { samples: 1, quality: 0 } }
+}
+
+impl Tr2MsaaDesc {
+    #[must_use]
+    pub const fn new(samples: u32, quality: u32) -> Self {
+        Self { samples: if samples == 0 { 1 } else { samples }, quality }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Reflect, Serialize, Deserialize)]
+pub struct Tr2TextureSubresource {
+    pub start_face: u32,
+    pub end_face: u32,
+    pub start_mip_level: u32,
+    pub end_mip_level: u32,
+    pub box_: Tr2TextureCoordBox,
+}
+
+impl Default for Tr2TextureSubresource {
+    fn default() -> Self {
+        Self {
+            start_face: 0,
+            end_face: 1,
+            start_mip_level: 0,
+            end_mip_level: 1,
+            box_: Tr2TextureCoordBox::default(),
+        }
+    }
+}
+
+impl Tr2TextureSubresource {
+    #[must_use]
+    pub const fn mip(mip_level: u32) -> Self {
+        Self { start_mip_level: mip_level, end_mip_level: mip_level + 1, ..Self::default() }
+    }
+
+    #[must_use]
+    pub const fn get_width(self) -> u32 { self.box_.get_width() }
+    #[must_use]
+    pub const fn get_height(self) -> u32 { self.box_.get_height() }
+    #[must_use]
+    pub const fn get_depth(self) -> u32 { self.box_.get_depth() }
+    #[must_use]
+    pub const fn get_mip_count(self) -> u32 { self.end_mip_level.saturating_sub(self.start_mip_level) }
+    #[must_use]
+    pub const fn get_face_count(self) -> u32 { self.end_face.saturating_sub(self.start_face) }
+    #[must_use]
+    pub const fn has_box(self) -> bool { self.box_.right != 0 || self.box_.bottom != 0 || self.box_.back != 0 }
+    #[must_use]
+    pub const fn is_single_subresource(self) -> bool { self.get_mip_count() == 1 && self.get_face_count() == 1 }
+
+    pub fn set_rect(&mut self, left: u32, top: u32, right: u32, bottom: u32) -> &mut Self {
+        self.box_ = Tr2TextureCoordBox { left, top, front: 0, right, bottom, back: 1 };
+        self
+    }
+
+    pub fn clamp_to_texture(&mut self, texture: Tr2BitmapDimensions) {
+        let mip_count = texture.get_true_mip_count();
+        self.start_mip_level = self.start_mip_level.min(mip_count);
+        self.end_mip_level = self.end_mip_level.min(mip_count).max(self.start_mip_level);
+        let max_faces = if matches!(texture.texture_type, crate::TextureType::Cube) { 6 } else { texture.array_size.max(1) };
+        self.start_face = self.start_face.min(max_faces);
+        self.end_face = self.end_face.min(max_faces).max(self.start_face);
+        if self.is_single_subresource() && self.has_box() {
+            let width = texture.get_mip_width(self.start_mip_level);
+            let height = texture.get_mip_height(self.start_mip_level);
+            let depth = texture.get_mip_depth(self.start_mip_level).max(1);
+            self.box_.right = self.box_.right.min(width);
+            self.box_.bottom = self.box_.bottom.min(height);
+            self.box_.back = self.box_.back.min(depth);
+        }
+    }
+
+    #[must_use]
+    pub fn is_valid_for_bitmap(self, texture: Tr2BitmapDimensions) -> bool {
+        self.start_mip_level < self.end_mip_level
+            && self.end_mip_level <= texture.get_true_mip_count()
+            && self.start_face < self.end_face
+            && (!self.has_box()
+                || (self.box_.left <= self.box_.right
+                    && self.box_.top <= self.box_.bottom
+                    && self.box_.front <= self.box_.back
+                    && self.box_.right <= texture.get_mip_width(self.start_mip_level)
+                    && self.box_.bottom <= texture.get_mip_height(self.start_mip_level)
+                    && self.box_.back <= texture.get_mip_depth(self.start_mip_level).max(1)))
+    }
+}

@@ -1,0 +1,24 @@
+[package]
+name = "carbon-trinity-rs"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "trinity_rs"
+
+[dependencies]
+bevy.workspace = true
+blue.workspace = true
+blueexposure.workspace = true
+delegate.workspace = true
+serde.workspace = true
+trinity-meta.workspace = true
+trinity-macros.workspace = true
+trinityal.workspace = true
+
+[lints]
+workspace = true
