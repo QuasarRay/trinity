@@ -48,9 +48,10 @@ jobs:
           base64 --decode /tmp/trinity-rs.tar.gz.b64 > /tmp/trinity-rs.tar.gz
           echo '9e2fefc422fed2adbd82ce9ac1f0b02d00cf7bef2b2858759275ce8396af4bea  /tmp/trinity-rs.tar.gz' | sha256sum --check
           tar -xzf /tmp/trinity-rs.tar.gz
-          rm -rf .trinity-rs-bootstrap .github/workflows/trinity-rs-bootstrap.yml
+          rm -rf .trinity-rs-bootstrap
           git config user.name 'trinity-rs-bootstrap[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A trinity-rs .github/workflows/trinity-rs.yml .trinity-rs-bootstrap .github/workflows/trinity-rs-bootstrap.yml
+          rm -f .github/workflows/trinity-rs.yml
+          git add -A trinity-rs .trinity-rs-bootstrap
           git commit -m 'implement Trinity-rs on Bevy with generated Kani contracts'
           git push origin HEAD:trinity-rs-dev
