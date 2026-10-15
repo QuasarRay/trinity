@@ -1,0 +1,35 @@
+name: Bootstrap Trinity-rs
+
+on:
+  push:
+    branches: [trinity-rs-dev]
+    paths:
+      - '.trinity-rs-bootstrap/**'
+      - '.github/workflows/trinity-rs-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: github.ref == 'refs/heads/trinity-rs-dev'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: trinity-rs-dev
+      - name: Materialize authored Trinity-rs tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .trinity-rs-bootstrap/part-* > /tmp/trinity-rs.tar.gz.b64
+          base64 --decode /tmp/trinity-rs.tar.gz.b64 > /tmp/trinity-rs.tar.gz
+          echo '9e2fefc422fed2adbd82ce9ac1f0b02d00cf7bef2b2858759275ce8396af4bea  /tmp/trinity-rs.tar.gz' | sha256sum --check
+          tar -xzf /tmp/trinity-rs.tar.gz
+          rm -rf .trinity-rs-bootstrap .github/workflows/trinity-rs-bootstrap.yml
+          git config user.name 'trinity-rs-bootstrap[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A trinity-rs .github/workflows/trinity-rs.yml .trinity-rs-bootstrap .github/workflows/trinity-rs-bootstrap.yml
+          git commit -m 'implement Trinity-rs on Bevy with generated Kani contracts'
+          git push origin HEAD:trinity-rs-dev
