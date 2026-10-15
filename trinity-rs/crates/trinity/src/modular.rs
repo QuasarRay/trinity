@@ -1,3 +1,4 @@
+use bevy::ecs::reflect::ReflectResource;
 use bevy::prelude::*;
 use trinity_macros::TrinityClass;
 
