@@ -44,35 +44,34 @@ impl BlueRegistry {
 
     delegate! {
         to self.classes {
+            #[must_use]
             #[call(len)]
             pub fn class_count(&self) -> usize;
         }
         to self.functions {
+            #[must_use]
             #[call(len)]
             pub fn function_count(&self) -> usize;
         }
         to self.enums {
+            #[must_use]
             #[call(len)]
             pub fn enum_count(&self) -> usize;
         }
     }
 
-    #[must_use]
     pub fn classes(&self) -> impl Iterator<Item = &BlueClassInfo> {
         self.classes.values()
     }
 
-    #[must_use]
     pub fn functions(&self) -> impl Iterator<Item = &BlueFunctionInfo> {
         self.functions.values()
     }
 
-    #[must_use]
     pub fn enums(&self) -> impl Iterator<Item = &BlueEnumInfo> {
         self.enums.values()
     }
 
-    #[must_use]
     pub fn legacy_tests(&self) -> impl Iterator<Item = &BlueLegacyTestInfo> {
         self.legacy_tests.values()
     }

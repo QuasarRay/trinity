@@ -55,6 +55,6 @@ impl EveSpaceObject2 {
 pub struct EveSOF { #[trinity(read, write, persist)] pub data: EveSOFData }
 impl EveSOF {
     pub fn set_data(&mut self, data: EveSOFData) { self.data = data; }
-    #[must_use] pub fn create_modular_object(&self, world: &mut World, hull_name: &str) -> Option<Entity> { let hull = self.data.hull_named(hull_name)?; let mut object = EveSpaceObject2::default(); object.add_hull(hull); Some(world.spawn(object).id()) }
+    #[must_use] pub fn create_modular_object(&self, world: &mut World, hull_name: &str) -> Option<Entity> { let hull = self.data.hull_named(hull_name)?; let mut object = EveSpaceObject2::default(); let _ = object.add_hull(hull); Some(world.spawn(object).id()) }
     pub fn add_hull(&self, world: &mut World, entity: Entity, hull_name: &str) -> Option<u32> { let hull = self.data.hull_named(hull_name)?; world.get_mut::<EveSpaceObject2>(entity).map(|mut object| object.add_hull(hull)) }
 }
