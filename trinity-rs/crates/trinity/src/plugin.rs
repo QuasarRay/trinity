@@ -6,7 +6,7 @@ use trinity_meta::TrinityAppExt;
 use trinityal::TrinityAlPlugin;
 use crate::{EveChildContainer, EveChildMesh, EveSOF, EveSOFData, EveShip2, EveSpaceObject2, EveSpaceObjectChild, Tr2PPExecutionSlot, Tr2PPGenericEffect, Tr2PPParameter};
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, SystemSet)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Reflect, SystemSet)]
 pub enum TrinitySet { CarbonHierarchy, ModularAssembly, PostProcess, RenderAbstraction }
 #[derive(Default)] pub struct TrinityPlugin;
 impl Plugin for TrinityPlugin {
