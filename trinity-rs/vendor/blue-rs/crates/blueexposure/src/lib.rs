@@ -1,29 +1,6 @@
 extern crate self as blueexposure;
-
-mod app_ext;
-mod callback;
-mod class;
-mod descriptor;
-mod metadata;
-mod module;
-mod registry;
-
-pub use app_ext::{BlueAppExt, BlueExposurePlugin};
-pub use blue_macros::{BlueClass, blue_enum, blue_function, blue_methods, blue_pyclass, blue_test};
-pub use callback::BlueScriptCallback;
-pub use class::BlueClass;
-pub use descriptor::{BlueEnumDescriptor, BlueFunctionDescriptor};
-pub use metadata::{
-    BlueClassInfo, BlueClassKind, BlueEnumInfo, BlueFieldInfo, BlueFunctionInfo, BlueLegacyTestInfo,
-};
-pub use module::BlueModule;
+mod app_ext;mod metadata;mod registry;
+pub use app_ext::BlueExposurePlugin;
+pub use metadata::{BlueClassInfo,BlueClassKind,BlueEnumInfo,BlueFieldInfo,BlueFunctionInfo,BlueLegacyTestInfo};
 pub use registry::BlueRegistry;
-
-pub mod prelude {
-    pub use crate::{
-        BlueAppExt, BlueClass, BlueClassInfo, BlueClassKind, BlueEnumDescriptor, BlueEnumInfo,
-        BlueExposurePlugin, BlueFieldInfo, BlueFunctionDescriptor, BlueFunctionInfo, BlueModule,
-        BlueRegistry, BlueScriptCallback, blue_enum, blue_function, blue_methods, blue_pyclass,
-        blue_test,
-    };
-}
+pub mod prelude{pub use crate::{BlueClassInfo,BlueClassKind,BlueExposurePlugin,BlueFieldInfo,BlueRegistry};}

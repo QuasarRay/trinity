@@ -1,32 +1,14 @@
-# Bootstrap compatibility matrix
+# Trinity-rs compatibility evidence
 
-This file records the semantic mappings already implemented in this commit. Running `trinity-codegen` against the complete repository replaces it with the full discovered legacy-test matrix.
+This checked-in record describes the bootstrap subset. The complete matrix is regenerated from the pinned checkout by `trinity-codegen`.
 
-| Legacy contract | Port status | Verification |
+| Area | Evidence | Status |
 |---|---|---|
-| `trinity/tests/Python/tests/test_childhierarchy.py::TestChildHierarchy::test_initValues` | implemented semantic mapping | `kani` |
-| `trinity/tests/Python/tests/test_childhierarchy.py::TestChildHierarchy::test_ownerAssignment` | implemented semantic mapping | `kani` |
-| `trinity/tests/Python/tests/test_childhierarchy.py::TestChildHierarchy::test_transitiveOwnerAssignment` | implemented semantic mapping | `kani` |
-| `trinity/tests/Python/tests/test_childhierarchy.py::TestChildHierarchy::test_parentAssignment` | implemented semantic mapping | `kani` |
-| `trinity/tests/Python/tests/test_childhierarchy.py::TestChildHierarchy::test_ownerRemoval` | implemented semantic mapping | `kani` |
-| `trinity/tests/Python/tests/test_childhierarchy.py::TestChildHierarchy::test_parentRemoval` | implemented semantic mapping | `kani` |
-| `doc/source/eve/modular-assembly.rst::part-tags-stay-valid-across-sessions` | implemented semantic mapping | `kani` |
-| `doc/source/eve/modular-assembly.rst::set-transform-persists-per-part` | implemented semantic mapping | `kani` |
-| `doc/source/eve/generic-pp-effects.rst::identical-effects-group` | implemented semantic mapping | `kani` |
-| `doc/source/eve/generic-pp-effects.rst::non-blendable-parameters-split-groups` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::InitialSizeIsZero` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::ReportsCorrect2DSizes` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::ReportsCorrect3DSizes` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::CalculatesTrueMipCountAndMipSizes` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::GettingMipSizesForIncorrectMipReturnsZero` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::CalculatesTrueMipCountAndMipSizesForNptTexture` | implemented semantic mapping | `kani` |
-| `trinityal/tests/BitmapDimensions.cpp::BitmapDimensions::CalculatesCorrectMipSize` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::DefaultResultIsSuccess` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::CanCreateALResultFromHRESULT` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::CanCopyResult` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::CanCastALResultToHRESULT` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::CanQueryResultCategory` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::CanCheckIfResultIsSuccessful` | implemented semantic mapping | `kani` |
-| `trinityal/tests/ALResultTest.cpp::ALResult::CanGetErrorMessage` | implemented semantic mapping | `kani` |
-| `trinityal/tests/VertexDefinition.cpp::VertexDefinition::CanCompareVertexDefinitionItems` | implemented semantic mapping | `kani` |
-| `trinityal/tests/VertexDefinition.cpp::VertexDefinition::CanAddItemsToVertexDefinition` | implemented semantic mapping | `kani` |
+| Child hierarchy | original Python tests → shared Rust bodies → generated Kani | mapped subset |
+| Modular assembly | machine-readable RST → shared Rust bodies → generated Kani | mapped subset |
+| Generic post-processing | machine-readable RST grouping rules → generated Kani | mapped subset |
+| ALResult | original GoogleTests → generated Kani | mapped subset |
+| Bitmap/mip semantics | original GoogleTests → generated Kani | mapped subset |
+| Vertex definitions | original GoogleTests → generated Kani | mapped subset |
+| GPU/device/render behavior | original device tests and screenshots | explicit non-Kani obligation |
+| Complete Carbon Python API | original module behavior | open migration obligation |

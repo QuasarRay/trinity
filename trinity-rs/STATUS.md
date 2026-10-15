@@ -1,51 +1,70 @@
-# Trinity-rs status
+# Trinity-rs implementation status
 
-## Baseline
-
-- Branch: `trinity-rs-dev`
-- Legacy commit: `a9343c8904310374f284c38a71998af0672b3184`
-- Main branch modified: **no**
-- Machine-readable documentation archive SHA-256: `9f77e297e1c0bcb83f0cac2cdb390ac43de9e341db9d11e6e0efce9ad59ec255`
+- Branch scope: `trinity-rs-dev` only
+- Original compatibility baseline: `a9343c8904310374f284c38a71998af0672b3184`
+- Uploaded documentation SHA-256: `9f77e297e1c0bcb83f0cac2cdb390ac43de9e341db9d11e6e0efce9ad59ec255`
+- Runtime kernel: Bevy 0.20.0
+- Python bridge: PyO3 0.30.1
+- Generator: Doxygen XML + source discovery + Genco 0.20.0
+- Verification model: shared semantic bodies + generated Kani wrappers
+- Current status: experimental compatibility slice; **not full production equivalence**
 
 ## Implemented architecture
 
-- Bevy 0.20.0 is the runtime/ECS/asset/reflection/render kernel.
-- Blue-rs is vendored from the previously implemented Blue/Blueexposure Rust overlay.
-- Trinity/Trinity AL registration flows into both `TrinityRegistry` and Blueexposure's `BlueRegistry`.
-- Public compatibility names preserve Carbon naming (`Eve*`, `Tr2*`, `ALResult`).
-- PyO3 development bindings expose the first compatibility types without replacing the existing Carbon `trinity` module in-place.
-- Doxygen XML and original source tests are machine-discovered by `trinity-codegen`.
-- Genco is the canonical emitter for inventories and Kani wrappers.
-- `#[trinity_test]` produces one native semantic body; generated `#[kani::proof]` wrappers call that same body.
+- Additive `trinity-rs/` Cargo workspace; original C++/Python sources are unchanged and remain the oracle.
+- Bevy-native runtime integration: components, resources, assets, reflection, schedules/system sets, and production render plugin stack.
+- Vendored Blue-rs compatibility kernel sharing the same Bevy `App`, `World`, type registration and lifecycle.
+- Carbon-named Trinity and Trinity AL Rust types.
+- `proc_macro2`/Syn/Quote derive and attribute macros for class metadata and shared semantic tests.
+- `delegate` for direct delegation to Bevy/runtime/registry containers where it removes boilerplate.
+- Doxygen and direct source discovery for C++ GoogleTests, Python tests and symbols.
+- Genco emission of inventories, compatibility reports and Kani integration targets.
+- Branch-local GitHub Actions for generation, formatting, check, Clippy and tests; optional Kani workflow dispatch.
+- ISO/IEC/IEEE 42010:2022-style architecture description record.
 
-## Implemented semantic surface
+## Executable semantic mappings
 
-Trinity AL:
+The initial slice contains **26** shared Rust semantic tests and **26** generated Kani wrappers:
 
-- `ALResult` status/category/error-message semantics.
-- `Tr2BitmapDimensions` width/height/depth/mip-count/mip-size behavior for the currently represented formats.
-- `Tr2VertexDefinition` item layout and stream-relative offsets.
-- `Tr2BufferAL` as a Bevy asset-backed buffer abstraction.
-- `Tr2TextureAL` as a Bevy asset-backed texture abstraction.
-- `Tr2Viewport`, `Tr2MsaaDesc`, texture coordinate boxes and subresource ranges.
+- Trinity child hierarchy: 6
+- Trinity modular assembly: 2
+- Trinity generic post-processing: 2
+- Trinity AL bitmap/mip behavior: 7
+- Trinity AL result semantics: 7
+- Trinity AL vertex definition semantics: 2
 
-Trinity:
+These numbers describe implemented semantic mappings, not the size of the original test suite. The generator inventories the wider suite and leaves unmapped contracts explicit.
 
-- `EveSpaceObjectChild`, `EveChildMesh`, `EveChildContainer`, `EveShip2` hierarchy ownership/parent propagation on Bevy entities.
-- `EveSOFData`, `EveSOF`, `EveSpaceObject2` and persistent modular part-tag/transform state.
-- `Tr2PPGenericEffect` grouping rules derived from the machine-readable generic post-processing documentation.
-- Production and verification plugin groups with different initialization breadth but the same Carbon registrations.
+## Implemented Trinity AL substrate
 
-## Verification inventory in this commit
+Current Rust types include:
 
-- Native semantic `#[trinity_test]` bodies: **26**
-- Checked-in generated Kani wrappers: **26**
-- Hand-written `#[kani::proof]` wrappers: **0**
+- `ALResult`
+- `Tr2BitmapDimensions`
+- `Tr2VertexDefinition`
+- `Tr2BufferAL`
+- `Tr2TextureAL`
+- viewport/MSAA/subresource helper values
+- Bevy asset-backed buffer/texture state
 
-The full count of original legacy tests is deliberately generated from the repository checkout rather than hard-coded here. `cargo run -p trinity-codegen -- generate` inventories all discoverable GoogleTest and Python tests and classifies render-device/screenshot contracts separately.
+## Open compatibility obligations
 
-## Not yet equivalent to production Trinity
+The following are intentionally not represented as complete merely because a Rust scaffold exists:
 
-This commit does **not** claim complete behavioral equivalence with the entire original Trinity/Trinity AL codebase. Major remaining obligations include the complete render-context API, all pixel/texture formats, shader/effect compilation, backend-specific DX/Metal behavior, ray tracing, swap chains, complete SOF/modular assembly behavior, resource serialization, the full Python exposure surface, all render-device tests and screenshot equivalence.
+- complete SOF/modular assembly behavior;
+- complete Carbon Python module/API surface;
+- complete Trinity AL render-context and device APIs;
+- shader/effect compiler compatibility;
+- complete pixel-format and resource semantics;
+- DX/Metal/backend-specific behavior;
+- swap chains, fences, queries and ray tracing;
+- resource serialization/loading parity;
+- GPU runtime tests;
+- screenshot/image equivalence;
+- performance and production rollout evidence.
 
-The architecture is intended to make those obligations machine-enumerable and progressively provable instead of hiding them behind placeholder APIs.
+Kani is not used as a substitute for GPU/device/image equivalence. Those original tests remain classified as runtime/render evidence obligations.
+
+## Validation state
+
+The local execution environment used to author this branch does not provide `cargo`, `rustc` or `doxygen`. Consequently, source/tree consistency was checked before publication, while compile/test validation is delegated to the branch-local GitHub Actions workflow. Any failing CI result must be treated as an implementation defect rather than waived as equivalent behavior.

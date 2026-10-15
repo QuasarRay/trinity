@@ -1,65 +1,30 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs,
-    path::Path,
-};
+use std::{collections::{BTreeMap, BTreeSet}, fs, path::Path};
 
 use genco::prelude::*;
 
 use crate::model::{DoxygenSymbol, Inventory, LegacyTest, RustTest, VerificationClass};
 
-pub fn write_inventory(
-    out_dir: &Path,
-    inventory: &Inventory,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn write_inventory(out_dir: &Path, inventory: &Inventory) -> Result<(), Box<dyn std::error::Error>> {
     fs::create_dir_all(out_dir.join("kani"))?;
-    fs::write(
-        out_dir.join("inventory.json"),
-        serde_json::to_string_pretty(inventory)?,
-    )?;
-    fs::write(
-        out_dir.join("legacy_tests.rs"),
-        render_legacy_tests(&inventory.legacy_tests)?,
-    )?;
-    fs::write(
-        out_dir.join("doxygen_symbols.rs"),
-        render_symbols(&inventory.doxygen_symbols)?,
-    )?;
-    fs::write(
-        out_dir.join("compatibility-matrix.md"),
-        render_matrix(inventory),
-    )?;
+    fs::write(out_dir.join("inventory.json"), serde_json::to_string_pretty(inventory)?)?;
+    fs::write(out_dir.join("legacy_tests.rs"), render_legacy_tests(&inventory.legacy_tests)?)?;
+    fs::write(out_dir.join("doxygen_symbols.rs"), render_symbols(&inventory.doxygen_symbols)?)?;
+    fs::write(out_dir.join("compatibility-matrix.md"), render_matrix(inventory))?;
     fs::write(out_dir.join("kani-pairing.md"), render_pairing(inventory))?;
     Ok(())
 }
 
-pub fn write_kani_harnesses(
-    workspace_root: &Path,
-    out_dir: &Path,
-    tests: &[RustTest],
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn write_kani_harnesses(workspace_root: &Path, out_dir: &Path, tests: &[RustTest]) -> Result<(), Box<dyn std::error::Error>> {
     let mut by_crate: BTreeMap<&str, Vec<&RustTest>> = BTreeMap::new();
-    for test in tests
-        .iter()
-        .filter(|test| test.verification == VerificationClass::Kani)
-    {
+    for test in tests.iter().filter(|test| test.verification == VerificationClass::Kani) {
         by_crate.entry(&test.crate_name).or_default().push(test);
     }
     for (crate_name, tests) in by_crate {
         let rendered = render_kani_target(&tests)?;
-        let target = workspace_root
-            .join("crates")
-            .join(crate_name)
-            .join("tests")
-            .join("trinity_kani_generated.rs");
-        if let Some(parent) = target.parent() {
-            fs::create_dir_all(parent)?;
-        }
+        let target = workspace_root.join("crates").join(crate_name).join("tests").join("trinity_kani_generated.rs");
+        if let Some(parent) = target.parent() { fs::create_dir_all(parent)?; }
         fs::write(&target, &rendered)?;
-        fs::write(
-            out_dir.join("kani").join(format!("{crate_name}.rs")),
-            rendered,
-        )?;
+        fs::write(out_dir.join("kani").join(format!("{crate_name}.rs")), rendered)?;
     }
     Ok(())
 }
@@ -111,9 +76,7 @@ fn render_kani_target(tests: &[&RustTest]) -> Result<String, genco::fmt::Error> 
     }
     let mut modules = BTreeMap::<String, String>::new();
     for test in tests {
-        modules
-            .entry(test.source.clone())
-            .or_insert_with(|| format!("__trinity_source_{}", sanitize(&test.source)));
+        modules.entry(test.source.clone()).or_insert_with(|| format!("__trinity_source_{}", sanitize(&test.source)));
     }
     for (source, alias) in &modules {
         quote_in! { tokens =>
@@ -123,10 +86,7 @@ fn render_kani_target(tests: &[&RustTest]) -> Result<String, genco::fmt::Error> 
     }
     for test in tests {
         let alias = modules.get(&test.source).expect("module exists");
-        let harness = format!(
-            "trinity_kani_{}",
-            sanitize(&format!("{}__{}", test.crate_name, test.function))
-        );
+        let harness = format!("trinity_kani_{}", sanitize(&format!("{}__{}", test.crate_name, test.function)));
         let call = format!("{alias}::{}", test.body_name);
         quote_in! { tokens =>
             #[kani::proof]
@@ -139,88 +99,34 @@ fn render_kani_target(tests: &[&RustTest]) -> Result<String, genco::fmt::Error> 
 }
 
 fn render_pairing(inventory: &Inventory) -> String {
-    let legacy_ids = inventory
-        .legacy_tests
-        .iter()
-        .map(|test| test.id.as_str())
-        .collect::<BTreeSet<_>>();
-    let mapped = inventory
-        .rust_tests
-        .iter()
-        .filter(|test| legacy_ids.contains(test.legacy.as_str()))
-        .count();
-    let kani = inventory
-        .rust_tests
-        .iter()
-        .filter(|test| test.verification == VerificationClass::Kani)
-        .count();
+    let legacy_ids = inventory.legacy_tests.iter().map(|test| test.id.as_str()).collect::<BTreeSet<_>>();
+    let mapped = inventory.rust_tests.iter().filter(|test| legacy_ids.contains(test.legacy.as_str())).count();
+    let kani = inventory.rust_tests.iter().filter(|test| test.verification == VerificationClass::Kani).count();
     let mut out = format!(
         "# Generated Kani pairing report\n\nLegacy declarations: **{}**  \nRust semantic tests: **{}**  \nMapped to discovered legacy declarations: **{}**  \nGenco-generated Kani harnesses: **{}**\n\n",
-        inventory.legacy_tests.len(),
-        inventory.rust_tests.len(),
-        mapped,
-        kani
+        inventory.legacy_tests.len(), inventory.rust_tests.len(), mapped, kani
     );
     out.push_str("A generated Kani harness is emitted only for a real `#[trinity_test(..., verification = \"kani\")]` semantic body. Unimplemented legacy tests remain explicit compatibility obligations; the generator does not create placeholder proofs.\n\n");
     out.push_str("| Legacy contract | Rust semantic test | Verification | Kani wrapper |\n|---|---|---|---|\n");
     for test in &inventory.rust_tests {
-        let wrapper = if test.verification == VerificationClass::Kani {
-            "generated"
-        } else {
-            "not applicable"
-        };
-        out.push_str(&format!(
-            "| `{}` | `{}::{}` | `{}` | {} |\n",
-            test.legacy,
-            test.crate_name,
-            test.function,
-            test.verification.as_str(),
-            wrapper
-        ));
+        let wrapper = if test.verification == VerificationClass::Kani { "generated" } else { "not applicable" };
+        out.push_str(&format!("| `{}` | `{}::{}` | `{}` | {} |\n", test.legacy, test.crate_name, test.function, test.verification.as_str(), wrapper));
     }
     out
 }
 
 fn render_matrix(inventory: &Inventory) -> String {
-    let mapped = inventory
-        .rust_tests
-        .iter()
-        .map(|test| test.legacy.as_str())
-        .collect::<BTreeSet<_>>();
-    let mut out = String::from(
-        "# Generated Trinity compatibility matrix\n\n| Legacy contract | Suggested verification | Port status |\n|---|---|---|\n",
-    );
+    let mapped = inventory.rust_tests.iter().map(|test| test.legacy.as_str()).collect::<BTreeSet<_>>();
+    let mut out = String::from("# Generated Trinity compatibility matrix\n\n| Legacy contract | Suggested verification | Port status |\n|---|---|---|\n");
     for test in &inventory.legacy_tests {
-        out.push_str(&format!(
-            "| `{}` | `{}` | {} |\n",
-            test.id,
-            test.suggested_verification.as_str(),
-            if mapped.contains(test.id.as_str()) {
-                "implemented semantic mapping"
-            } else {
-                "unmapped"
-            }
-        ));
+        out.push_str(&format!("| `{}` | `{}` | {} |\n", test.id, test.suggested_verification.as_str(), if mapped.contains(test.id.as_str()) { "implemented semantic mapping" } else { "unmapped" }));
     }
     out
 }
 
 fn sanitize(value: &str) -> String {
-    let mut out = value
-        .chars()
-        .map(|ch| {
-            if ch.is_ascii_alphanumeric() {
-                ch.to_ascii_lowercase()
-            } else {
-                '_'
-            }
-        })
-        .collect::<String>();
-    while out.contains("__") {
-        out = out.replace("__", "_");
-    }
-    if out.is_empty() || out.as_bytes()[0].is_ascii_digit() {
-        out.insert(0, '_');
-    }
+    let mut out = value.chars().map(|ch| if ch.is_ascii_alphanumeric() { ch.to_ascii_lowercase() } else { '_' }).collect::<String>();
+    while out.contains("__") { out = out.replace("__", "_"); }
+    if out.is_empty() || out.as_bytes()[0].is_ascii_digit() { out.insert(0, '_'); }
     out
 }
