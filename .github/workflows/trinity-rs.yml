@@ -1,0 +1,73 @@
+name: Trinity-rs
+
+on:
+  push:
+    branches: [trinity-rs-dev]
+    paths:
+      - 'trinity-rs/**'
+      - '.github/workflows/trinity-rs.yml'
+  pull_request:
+    paths:
+      - 'trinity-rs/**'
+      - '.github/workflows/trinity-rs.yml'
+  workflow_dispatch:
+    inputs:
+      run_kani:
+        description: 'Run generated Kani harnesses'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    name: Rust + generated contracts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trinity-rs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+          components: rustfmt, clippy
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+        working-directory: .
+      - name: Generate Doxygen XML and Rust inventories
+        run: ./scripts/regenerate.sh
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Check workspace
+        run: cargo check --workspace --all-targets
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Test workspace
+        run: cargo test --workspace
+
+  kani:
+    name: Generated Kani harnesses
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_kani }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trinity-rs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+        working-directory: .
+      - name: Generate contracts
+        run: ./scripts/regenerate.sh
+      - name: Install Kani
+        run: cargo install --locked kani-verifier
+      - name: Set up Kani
+        run: cargo kani setup
+      - name: Verify generated harnesses
+        run: ./scripts/kani.sh
