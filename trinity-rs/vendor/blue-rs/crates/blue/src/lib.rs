@@ -1,3 +1,4 @@
+use bevy::ecs::reflect::ReflectResource;
 use bevy::prelude::*;
 pub use blueexposure;
 #[derive(Resource,Reflect,Clone,Debug,Default)]#[reflect(Resource)]pub struct BlueLifecycle{pub frame:u64,pub shutdown_requested:bool}
