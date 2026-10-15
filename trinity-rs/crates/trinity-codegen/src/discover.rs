@@ -170,7 +170,7 @@ fn collect_rust_tests(
             })?;
             let function_name = function.sig.ident.to_string();
             out.insert(RustTest {
-                crate_name: crate_name.clone(),
+                crate_name: crate_name.to_owned(),
                 source: source.strip_prefix(&format!("crates/{crate_name}/tests/")).unwrap_or(source).to_owned(),
                 body_name: format!("__trinity_test_body_{function_name}"),
                 function: function_name,
