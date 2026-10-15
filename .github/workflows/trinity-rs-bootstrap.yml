@@ -19,6 +19,21 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: trinity-rs-dev
+      - name: Verify transport segments
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/trinity-rs-segments.sha256 <<'EOF'
+          e0f165f580680b90f200e8ce4235c7a5aaa6a16a291e079f498243a720ef3792  .trinity-rs-bootstrap/part-000
+          333afbc6c07eba41d1d7507bb29568e040d31b0e40523067e87873db7b29479c  .trinity-rs-bootstrap/part-001
+          66e79df6590aca5d8d640f068353b889be421c184ddbf00efd8e8a62d7286fd9  .trinity-rs-bootstrap/part-002
+          6ebc7e6ed1ab130d16507f47fd9e9cd754c81d36b1798ad1cd72e2e4db5f00de  .trinity-rs-bootstrap/part-003
+          9a85ba4aefa258e1e3fcfd23257bd8ebe631a829dce3fba34709fc73cfcc8ee4  .trinity-rs-bootstrap/part-004
+          537a48d50a3b67ae946b9e0294ac8a4ed1eaa71f972c7e3f37e04235fb7d689d  .trinity-rs-bootstrap/part-005
+          4277f6fe563bbf20365f4901cf934ffcebc9dcb8ffd00bbd799cc4570e6e006b  .trinity-rs-bootstrap/part-006
+          f1221047573f1bb1dc4bf696696e59256140bd1b53b891c98592f56cb4fea91e  .trinity-rs-bootstrap/part-007
+          EOF
+          sha256sum --check /tmp/trinity-rs-segments.sha256
       - name: Materialize authored Trinity-rs tree
         shell: bash
         run: |
