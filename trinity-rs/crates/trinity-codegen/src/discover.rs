@@ -18,7 +18,8 @@ pub fn discover_legacy_tests(repo_root: &Path) -> Result<Vec<LegacyTest>, Box<dy
                 continue;
             }
             let relative = relative(repo_root, entry.path());
-            let text = fs::read_to_string(entry.path())?;
+            let bytes = fs::read(entry.path())?;
+            let text = String::from_utf8_lossy(&bytes);
             tests.extend(discover_gtest_text(&relative, &text));
         }
     }
@@ -30,7 +31,8 @@ pub fn discover_legacy_tests(repo_root: &Path) -> Result<Vec<LegacyTest>, Box<dy
                 continue;
             }
             let relative = relative(repo_root, entry.path());
-            let text = fs::read_to_string(entry.path())?;
+            let bytes = fs::read(entry.path())?;
+            let text = String::from_utf8_lossy(&bytes);
             tests.extend(discover_python_text(&relative, &text));
         }
     }
@@ -191,7 +193,8 @@ pub fn discover_doxygen_symbols(xml_dir: &Path) -> Result<Vec<DoxygenSymbol>, Bo
         if !entry.file_type().is_file() || entry.path().extension().and_then(|x| x.to_str()) != Some("xml") {
             continue;
         }
-        let text = fs::read_to_string(entry.path())?;
+        let bytes = fs::read(entry.path())?;
+        let text = String::from_utf8_lossy(&bytes);
         let Ok(document) = Document::parse(&text) else { continue; };
         for compound in document.descendants().filter(|node| node.has_tag_name("compounddef")) {
             let compound_name = child_text(compound, "compoundname").unwrap_or_default();
