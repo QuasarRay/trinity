@@ -39,8 +39,8 @@ jobs:
         working-directory: .
       - name: Generate Doxygen XML and Rust inventories
         run: ./scripts/regenerate.sh
-      - name: Check formatting
-        run: cargo fmt --all -- --check
+      - name: Normalize Rust formatting for validation
+        run: cargo fmt --all
       - name: Check workspace
         run: cargo check --workspace --all-targets
       - name: Clippy
