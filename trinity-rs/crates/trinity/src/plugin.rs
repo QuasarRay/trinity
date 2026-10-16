@@ -10,7 +10,7 @@ use crate::{
     EveSOFDataGeneric, EveSOFDataGenericShader, EveSOFDataHull, EveSOFDataHullArea,
     EveSOFDataHullLocatorSet, EveSOFDataHullSoundEmitter, EveSOFDataRace, EveSOFDataTransform,
     EveShip2, EveSpaceObject2, EveSpaceObjectChild, Tr2PPExecutionSlot, Tr2PPGenericEffect,
-    Tr2PPParameter, TrinitySet,
+    Tr2PPParameter,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Reflect, SystemSet)]

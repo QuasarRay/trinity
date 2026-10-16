@@ -291,7 +291,7 @@ impl EveSpaceObject2 {
             .collect::<Vec<_>>();
         spheres.sort_by(|left, right| right.radius.total_cmp(&left.radius));
 
-        let mut combined = None;
+        let mut combined: Option<ModularSphere> = None;
         let mut minimum = Vec3::splat(f32::INFINITY);
         let mut maximum = Vec3::splat(f32::NEG_INFINITY);
 
