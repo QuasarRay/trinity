@@ -31,11 +31,26 @@ impl VertexDataType {
     pub const DT_UNSIGNED_BIT: u8 = 1 << 3;
     pub const DT_NORMALIZED_BIT: u8 = 1 << 4;
     pub const DT_SIZE_OFFSET: u8 = 5;
-    pub const FLOAT16_2: Self = Self(3 | (1 << 5));
-    pub const FLOAT32_1: Self = Self(4);
-    pub const FLOAT32_2: Self = Self(4 | (1 << 5));
-    pub const FLOAT32_3: Self = Self(4 | (2 << 5));
-    pub const FLOAT32_4: Self = Self(4 | (3 << 5));
+    pub const DT_SIZE_1: u8 = 0 << Self::DT_SIZE_OFFSET;
+    pub const DT_SIZE_2: u8 = 1 << Self::DT_SIZE_OFFSET;
+    pub const DT_SIZE_3: u8 = 2 << Self::DT_SIZE_OFFSET;
+    pub const DT_SIZE_4: u8 = 3 << Self::DT_SIZE_OFFSET;
+
+    pub const BYTE_1: Self = Self(Self::DT_SIZE_1);
+    pub const BYTE_2: Self = Self(Self::DT_SIZE_2);
+    pub const BYTE_3: Self = Self(Self::DT_SIZE_3);
+    pub const BYTE_4: Self = Self(Self::DT_SIZE_4);
+
+    pub const UINT32_1: Self = Self(2 | Self::DT_SIZE_1 | Self::DT_UNSIGNED_BIT);
+    pub const UINT32_2: Self = Self(2 | Self::DT_SIZE_2 | Self::DT_UNSIGNED_BIT);
+    pub const UINT32_3: Self = Self(2 | Self::DT_SIZE_3 | Self::DT_UNSIGNED_BIT);
+    pub const UINT32_4: Self = Self(2 | Self::DT_SIZE_4 | Self::DT_UNSIGNED_BIT);
+
+    pub const FLOAT16_2: Self = Self(3 | Self::DT_SIZE_2);
+    pub const FLOAT32_1: Self = Self(4 | Self::DT_SIZE_1);
+    pub const FLOAT32_2: Self = Self(4 | Self::DT_SIZE_2);
+    pub const FLOAT32_3: Self = Self(4 | Self::DT_SIZE_3);
+    pub const FLOAT32_4: Self = Self(4 | Self::DT_SIZE_4);
 
     #[must_use]
     pub const fn scalar_bytes(self) -> u32 {
@@ -125,5 +140,32 @@ impl Tr2VertexDefinition {
         self.items
             .iter()
             .find(|item| item.usage == usage && item.usage_index == usage_index)
+    }
+
+    #[must_use]
+    pub fn find_default(&self, usage: VertexUsageCode) -> Option<&Tr2VertexDefinitionItem> {
+        self.find(usage, 0)
+    }
+
+    #[must_use]
+    pub fn get_data_type_size_in_members(data_type: VertexDataType) -> u32 {
+        data_type.element_count()
+    }
+
+    #[must_use]
+    pub fn get_data_type_size_in_bytes(data_type: VertexDataType) -> u32 {
+        data_type.byte_size()
+    }
+
+    #[allow(non_snake_case)]
+    #[must_use]
+    pub fn GetDataTypeSizeInMembers(data_type: VertexDataType) -> u32 {
+        Self::get_data_type_size_in_members(data_type)
+    }
+
+    #[allow(non_snake_case)]
+    #[must_use]
+    pub fn GetDataTypeSizeInBytes(data_type: VertexDataType) -> u32 {
+        Self::get_data_type_size_in_bytes(data_type)
     }
 }
