@@ -48,12 +48,12 @@ impl VertexDataType {
     }
 
     #[must_use]
-    pub const fn element_count(self) -> u32 {
+    pub fn element_count(self) -> u32 {
         u32::from((self.0 >> Self::DT_SIZE_OFFSET) & 0b11) + 1
     }
 
     #[must_use]
-    pub const fn byte_size(self) -> u32 {
+    pub fn byte_size(self) -> u32 {
         self.scalar_bytes() * self.element_count()
     }
 }
