@@ -1,3 +1,38 @@
-mod bitmap;mod buffer;mod hal;mod plugin;mod render_context;mod result;mod texture;mod vertex;
-pub use bitmap::Tr2BitmapDimensions;pub use buffer::{Tr2BufferAL,Tr2BufferAsset,Tr2BufferDescriptionAL};pub use hal::{Tr2MsaaDesc,Tr2TextureCoordBox,Tr2TextureSubresource,Tr2Viewport};pub use plugin::TrinityAlPlugin;pub use render_context::{PixelFormat,TextureType,Tr2CpuUsage,Tr2GpuUsage,Tr2RenderContextEnum};pub use result::{be_get_error_message,be_is_success,failed,succeeded,ALResult,ALResultCategory,HResult,E_DEVICELOST,E_FAIL,E_INVALIDARG,E_INVALIDCALL,E_OUTOFMEMORY,S_FALSE,S_OK};pub use texture::{Tr2TextureAL,Tr2TextureAsset};pub use vertex::{Tr2VertexDefinition,Tr2VertexDefinitionItem,VertexDataType,VertexUsageCode};
-pub mod prelude{pub use crate::{be_get_error_message,be_is_success,ALResult,ALResultCategory,PixelFormat,TextureType,Tr2BitmapDimensions,Tr2BufferAL,Tr2BufferAsset,Tr2BufferDescriptionAL,Tr2CpuUsage,Tr2GpuUsage,Tr2MsaaDesc,Tr2RenderContextEnum,Tr2TextureAL,Tr2TextureAsset,Tr2TextureCoordBox,Tr2TextureSubresource,Tr2VertexDefinition,Tr2VertexDefinitionItem,Tr2Viewport,TrinityAlPlugin,VertexDataType,VertexUsageCode};}
+mod bitmap;
+mod buffer;
+mod hal;
+mod plugin;
+mod render_context;
+mod result;
+mod texture;
+mod vertex;
+
+pub use bitmap::Tr2BitmapDimensions;
+pub use buffer::{Tr2BufferAL, Tr2BufferAsset, Tr2BufferDescriptionAL};
+pub use hal::{
+    AdvanceMip, Crop, Tr2MsaaDesc, Tr2TextureCoordBox, Tr2TextureSubresource, Tr2Viewport,
+    advance_mip, crop,
+};
+pub use plugin::TrinityAlPlugin;
+pub use render_context::{
+    PixelFormat, TextureType, Tr2CpuUsage, Tr2GpuUsage, Tr2RenderContextEnum,
+};
+pub use result::{
+    ALResult, ALResultCategory, E_DEVICELOST, E_FAIL, E_INVALIDARG, E_INVALIDCALL, E_OUTOFMEMORY,
+    HResult, S_FALSE, S_OK, be_get_error_message, be_is_success, failed, succeeded,
+};
+pub use texture::{Tr2TextureAL, Tr2TextureAsset};
+pub use vertex::{
+    Tr2VertexDefinition, Tr2VertexDefinitionItem, VertexDataType, VertexUsageCode,
+};
+
+pub mod prelude {
+    pub use crate::{
+        ALResult, ALResultCategory, AdvanceMip, Crop, PixelFormat, TextureType, Tr2BitmapDimensions,
+        Tr2BufferAL, Tr2BufferAsset, Tr2BufferDescriptionAL, Tr2CpuUsage, Tr2GpuUsage, Tr2MsaaDesc,
+        Tr2RenderContextEnum, Tr2TextureAL, Tr2TextureAsset, Tr2TextureCoordBox,
+        Tr2TextureSubresource, Tr2VertexDefinition, Tr2VertexDefinitionItem, Tr2Viewport,
+        TrinityAlPlugin, VertexDataType, VertexUsageCode, advance_mip, be_get_error_message,
+        be_is_success, crop,
+    };
+}
