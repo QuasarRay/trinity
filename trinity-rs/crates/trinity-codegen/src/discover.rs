@@ -124,7 +124,9 @@ pub fn discover_python_text(source: &str, text: &str) -> Vec<LegacyTest> {
                     name: name.into(),
                     line: u32::try_from(index + 1).ok(),
                     kind: LegacyTestKind::Python,
-                    suggested_verification: VerificationClass::Kani,
+                    // Python tests exercise the Blue/Python/runtime boundary by default.
+                    // Individual Rust semantic ports can explicitly opt into Kani when pure.
+                    suggested_verification: VerificationClass::Integration,
                 });
             }
         }
