@@ -39,6 +39,20 @@ jobs:
         working-directory: .
       - name: Generate Doxygen XML and Rust inventories
         run: ./scripts/regenerate.sh
+      - name: Upload generated contract evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: trinity-rs-generated-contracts
+          if-no-files-found: error
+          path: |
+            trinity-rs/generated/inventory.json
+            trinity-rs/generated/legacy_tests.rs
+            trinity-rs/generated/doxygen_symbols.rs
+            trinity-rs/generated/compatibility-matrix.md
+            trinity-rs/generated/kani-pairing.md
+            trinity-rs/generated/kani/**
+            trinity-rs/crates/trinity/tests/trinity_kani_generated.rs
+            trinity-rs/crates/trinityal/tests/trinity_kani_generated.rs
       - name: Normalize Rust formatting for validation
         run: cargo fmt --all
       - name: Check workspace
