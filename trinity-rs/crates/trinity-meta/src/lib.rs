@@ -93,14 +93,22 @@ pub struct TrinityRegistry { classes: BTreeMap<String, TrinityClassInfo> }
 
 impl TrinityRegistry {
     pub fn register_class(&mut self, info: TrinityClassInfo) { self.classes.insert(info.qualified_name(), info); }
+
     #[must_use]
     pub fn class(&self, qualified_name: &str) -> Option<&TrinityClassInfo> { self.classes.get(qualified_name) }
+
     delegate! {
         to self.classes {
-            #[call(len)] pub fn class_count(&self) -> usize;
-            #[call(is_empty)] pub fn is_empty(&self) -> bool;
+            #[call(len)]
+            #[must_use]
+            pub fn class_count(&self) -> usize;
+
+            #[call(is_empty)]
+            #[must_use]
+            pub fn is_empty(&self) -> bool;
         }
     }
+
     pub fn classes(&self) -> impl Iterator<Item = &TrinityClassInfo> { self.classes.values() }
 }
 
