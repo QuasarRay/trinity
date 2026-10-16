@@ -19,7 +19,7 @@ on:
         type: boolean
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   rust:
@@ -61,6 +61,19 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Test workspace
         run: cargo test --workspace
+      - name: Sync generated contract evidence
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/trinity-rs-dev' }}
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             trinity-rs/generated/inventory.json             trinity-rs/generated/legacy_tests.rs             trinity-rs/generated/doxygen_symbols.rs             trinity-rs/generated/compatibility-matrix.md             trinity-rs/generated/kani-pairing.md             trinity-rs/generated/kani             trinity-rs/crates/trinity/tests/trinity_kani_generated.rs             trinity-rs/crates/trinityal/tests/trinity_kani_generated.rs
+          if git diff --cached --quiet; then
+            echo "Generated contract evidence is already current."
+          else
+            git commit -m "chore(trinity-rs): sync generated contract evidence [skip ci]"
+            git push origin HEAD:trinity-rs-dev
+          fi
 
   kani:
     name: Generated Kani harnesses
