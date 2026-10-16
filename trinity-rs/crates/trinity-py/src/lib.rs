@@ -70,7 +70,7 @@ impl PyTrinityRuntime {
     fn update(&mut self) { self.runtime.update(); }
     #[pyo3(name = "RegisteredClasses")]
     fn registered_classes(&self) -> Vec<String> {
-        self.runtime.world().get_resource::<TrinityRegistry>().map_or_else(Vec::new, |registry| registry.classes().map(|info| info.qualified_name()).collect())
+        self.runtime.world().get_resource::<TrinityRegistry>().map_or_else(Vec::new, |registry| registry.classes().map(trinity_meta::TrinityClassInfo::qualified_name).collect())
     }
 }
 
