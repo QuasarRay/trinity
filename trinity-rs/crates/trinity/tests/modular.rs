@@ -9,6 +9,13 @@ use trinity_rs::{
 const FACTION: &str = "testfaction";
 const RACE: &str = "testrace";
 
+fn assert_f32_eq(expected: f32, actual: f32) {
+    assert!(
+        (expected - actual).abs() <= f32::EPSILON,
+        "expected {expected}, got {actual}"
+    );
+}
+
 fn sof() -> EveSOF {
     let damage_locator = EveSOFDataTransform {
         position: Vec3::ZERO,
@@ -342,7 +349,7 @@ fn set_bounding_sphere_from_one_part() {
     let ship = create_ship(&sof, &mut world);
     add_hull(&sof, &mut world, ship, "static_hull", Vec3::ZERO, Quat::IDENTITY, Vec3::ONE);
     let object = world.get::<EveSpaceObject2>(ship).unwrap();
-    assert_eq!(50.0, object.bounding_sphere_radius);
+    assert_f32_eq(50.0, object.bounding_sphere_radius);
     assert_eq!(Vec3::ZERO, object.bounding_sphere_center);
 }
 
@@ -356,7 +363,7 @@ fn bounding_sphere_accounts_for_translation() {
     let ship = create_ship(&sof, &mut world);
     add_hull(&sof, &mut world, ship, "static_hull", Vec3::new(30.0, 0.0, 0.0), Quat::IDENTITY, Vec3::ONE);
     let object = world.get::<EveSpaceObject2>(ship).unwrap();
-    assert_eq!(50.0, object.bounding_sphere_radius);
+    assert_f32_eq(50.0, object.bounding_sphere_radius);
     assert_eq!(Vec3::new(30.0, 0.0, 0.0), object.bounding_sphere_center);
 }
 
@@ -374,7 +381,7 @@ fn bounding_sphere_encapsulates_all_children() {
         modifier.add_hull("static_hull", FACTION, RACE, Vec3::new(-30.0, 0.0, 0.0), Quat::IDENTITY, Vec3::ONE);
     }
     let object = world.get::<EveSpaceObject2>(ship).unwrap();
-    assert_eq!(80.0, object.bounding_sphere_radius);
+    assert_f32_eq(80.0, object.bounding_sphere_radius);
     assert_eq!(Vec3::ZERO, object.bounding_sphere_center);
 }
 
@@ -397,7 +404,7 @@ fn bounding_sphere_updates_on_removal() {
         modifier.remove(positive).unwrap();
     }
     let object = world.get::<EveSpaceObject2>(ship).unwrap();
-    assert_eq!(50.0, object.bounding_sphere_radius);
+    assert_f32_eq(50.0, object.bounding_sphere_radius);
     assert_eq!(Vec3::new(-30.0, 0.0, 0.0), object.bounding_sphere_center);
 }
 
@@ -433,7 +440,10 @@ fn bounding_sphere_scales_with_transform() {
         let mut modifier = sof.modify_modular_object(&mut world, ship).unwrap();
         modifier.set_transform(part, Vec3::ZERO, Quat::IDENTITY, Vec3::splat(2.0)).unwrap();
     }
-    assert_eq!(100.0, world.get::<EveSpaceObject2>(ship).unwrap().bounding_sphere_radius);
+    assert_f32_eq(
+        100.0,
+        world.get::<EveSpaceObject2>(ship).unwrap().bounding_sphere_radius,
+    );
 }
 
 #[trinity_test(
@@ -450,7 +460,7 @@ fn bounding_sphere_concentric_parts_uses_largest() {
         modifier.add_hull("static_hull2", FACTION, RACE, Vec3::ZERO, Quat::IDENTITY, Vec3::ONE);
     }
     let object = world.get::<EveSpaceObject2>(ship).unwrap();
-    assert_eq!(60.0, object.bounding_sphere_radius);
+    assert_f32_eq(60.0, object.bounding_sphere_radius);
     assert_eq!(Vec3::ZERO, object.bounding_sphere_center);
 }
 
