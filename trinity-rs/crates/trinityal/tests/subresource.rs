@@ -1,3 +1,5 @@
+#![allow(clippy::field_reassign_with_default)]
+
 use trinity_macros::trinity_test;
 use trinityal::{
     PixelFormat, TextureType, Tr2BitmapDimensions, Tr2TextureSubresource, advance_mip, crop,
