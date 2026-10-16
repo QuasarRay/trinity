@@ -201,7 +201,6 @@ impl EveModularPartData {
         }
     }
 
-    #[must_use]
     fn transformed_damage_locators(&self) -> impl Iterator<Item = Vec3> + '_ {
         self.damage_locators.iter().copied().map(|position| {
             self.transform.position
